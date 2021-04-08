@@ -63,6 +63,7 @@ with frameworks; with libs; {
   ICADevices              = { inherit Carbon IOBluetooth libobjc; };
   IMServicePlugIn         = { inherit Foundation; };
   IOBluetoothUI           = { inherit Cocoa Foundation IOBluetooth; };
+  Intents                 = {};
   IOKit                   = { inherit libobjc; };
   IOSurface               = { inherit IOKit xpc; };
   ImageCaptureCore        = { inherit Foundation; };

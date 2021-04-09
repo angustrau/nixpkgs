@@ -64,6 +64,55 @@ let
     substArgs = lib.concatMap (x: [ "--subst-var-by" x deps'."${x}" ]) (lib.attrNames deps');
   in lib.escapeShellArgs substArgs;
 
+  fixAndCheckReexports = name: deps: ''
+    # Fix and check tbd re-export references
+    find $out -name '*.tbd' | while read tbd; do
+      echo "Fixing re-exports in $tbd"
+      substituteInPlace "$tbd" ${mkFrameworkSubs name deps}
+
+      echo "Checking re-exports in $tbd"
+      print-reexports "$tbd" | while read target; do
+        local expected="''${target%.dylib}.tbd"
+        if ! [ -e "$expected" ]; then
+          echo -e "Re-export missing:\n\t$target\n\t(expected $expected)"
+          echo -e "While processing\n\t$tbd"
+          exit 1
+        else
+          echo "Re-exported target $target ok"
+        fi
+      done
+    done
+  '';
+
+  checkFramework = name: framework: let
+    frameworkExtraInputs = lib.optionalAttrs (frameworksRuntimeDeps ? ${framework.frameworkName}) frameworksRuntimeDeps.${framework.frameworkName};
+    checkHeaders = {
+      # NetworkExtension has a single well-defined entrypoint that is required.
+      NetworkExtension = [ "NetworkExtension.h" ];
+    };
+    frameworkCheckHeaders = lib.optionals (checkHeaders ? ${framework.frameworkName}) checkHeaders.${framework.frameworkName};
+  in stdenv.mkDerivation rec {
+    name = "apple-framework-${framework.frameworkName}";
+
+    propagatedBuildInputs = [ framework ] ++ builtins.attrValues frameworkExtraInputs;
+
+    dontUnpack = true;
+    dontBuild = true;
+    installPhase = "mkdir $out";
+
+    headersDir = "${framework}/Library/Frameworks/${framework.frameworkName}.framework/Headers/";
+    headers = builtins.map (h: "${headersDir}${h}") frameworkCheckHeaders;
+
+    doInstallCheck = true;
+    installCheckPhase = ''
+      # Verify that the headers make sense - we should be able to find all the header files.
+      if [[ -z "$headers" ]]; then
+        headers="$(test -d "$headersDir" && find "$headersDir" -name '*.h' -type f -maxdepth 1 || exit 0)"
+      fi
+      test -z "$headers" || $CC -iframework ${framework}/Library/Frameworks -E -x objective-c-header $headers >/dev/null
+    '';
+  };
+
   framework = name: deps: stdenv.mkDerivation {
     name = "apple-framework-${name}";
 
@@ -183,7 +232,8 @@ let
       "/System/Library/Frameworks/${name}.framework/${name}"
     ];
 
-    meta = with stdenv.lib; {
+    passthru.frameworkName = name;
+    meta = with lib; {
       description = "Apple SDK framework ${name}";
       maintainers = with maintainers; [ copumpkin ];
       platforms   = platforms.darwin;
@@ -197,10 +247,26 @@ let
       mkdir -p $out/Library/Frameworks/
       cp -r ${darwin-stubs}/System/Library/${lib.optionalString private "Private"}Frameworks/${name}.framework \
         $out/Library/Frameworks
-      # NOTE there's no re-export checking here, this is probably wrong
+
+      pushd $out/Library/Frameworks/${name}.framework
+
+      versions=(./Versions/*)
+      if [ "''${#versions[@]}" != 1 ]; then
+        echo "Unable to determine current version of framework ${name}"
+        exit 1
+      fi
+      current=$(basename ''${versions[0]})
+
+      chmod u+w -R .
+      ln -s "$current" Versions/Current
+      ln -s Versions/Current/* .
+
+      popd
+      ${fixAndCheckReexports name deps}
     '';
+    passthru.frameworkName = name;
   };
-in rec {
+
   libs = {
     xpc = stdenv.mkDerivation {
       name   = "apple-lib-xpc";
@@ -211,6 +277,18 @@ in rec {
         pushd $out/include >/dev/null
         cp -r "${lib.getDev sdk}/include/xpc" $out/include/xpc
         cp "${lib.getDev sdk}/include/launch.h" $out/include/launch.h
+        popd >/dev/null
+      '';
+    };
+
+    simd = stdenv.mkDerivation {
+      name   = "apple-lib-simd";
+      dontUnpack = true;
+
+      installPhase = ''
+        mkdir -p $out/include
+        pushd $out/include >/dev/null
+        cp -r "${lib.getDev sdk}/include/simd" $out/include/simd
         popd >/dev/null
       '';
     };
@@ -292,10 +370,17 @@ in rec {
       '';
     });
 
-    MetalKit = stdenv.lib.overrideDerivation super.MetalKit (drv: {
+    LDAP = lib.overrideDerivation super.LDAP (drv: {
       installPhase = drv.installPhase + ''
-        mkdir -p $out/include/simd
-        cp ${lib.getDev sdk}/include/simd/*.h $out/include/simd/
+        mkdir -p $out/include
+        cp ${lib.getDev sdk}/include/{ldap,lber,lber_types,ldap_cdefs,ldap_features}.h $out/include/
+      '';
+    });
+
+    Tcl = lib.overrideDerivation super.Tcl (drv: {
+      installPhase = drv.installPhase + ''
+        mkdir -p $out/include
+        ln -sf $out/Library/Frameworks/Tcl.framework/Versions/*/Headers/tcl{,Decls,PlatDecls,TomMathDecls}.h $out/include
       '';
     });
 
@@ -305,14 +390,22 @@ in rec {
         "Versions/A/Frameworks/WebKitLegacy.framework/Versions/A/WebKitLegacy.tbd"
       ];
     });
+
+    GameCenter = tbdOnlyFramework "GameCenter" {
+      deps = { inherit (uncheckedFrameworks) GameCenterFoundation GameCenterUI; };
+    };
   } // lib.genAttrs [ "ContactsPersistence" "UIFoundation" "GameCenter" ] (x: tbdOnlyFramework x {});
 
-  bareFrameworks = stdenv.lib.mapAttrs framework (import ./frameworks.nix {
-    inherit frameworks libs;
+  frameworksArgs = {
+    inherit libs;
+    frameworks = uncheckedFrameworks;
     inherit (pkgs.darwin) libobjc;
-  });
+  };
 
-  frameworks = bareFrameworks // overrides bareFrameworks;
-
-  inherit sdk;
+  bareFrameworks = lib.mapAttrs framework (import ./frameworks.nix frameworksArgs);
+  uncheckedFrameworks = bareFrameworks // overrides bareFrameworks;
+  frameworksRuntimeDeps = import ./frameworks-runtime-deps.nix frameworksArgs;
+  frameworks = lib.mapAttrs checkFramework uncheckedFrameworks;
+in rec {
+  inherit libs frameworks sdk;
 }

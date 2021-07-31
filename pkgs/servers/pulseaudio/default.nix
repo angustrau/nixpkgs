@@ -85,6 +85,7 @@ stdenv.mkDerivation rec {
     [ "--disable-solaris"
       "--disable-jack"
       "--disable-oss-output"
+      "--disable-neon-opt"
     ] ++ lib.optional (!ossWrapper) "--disable-oss-wrapper" ++
     [ "--localstatedir=/var"
       "--sysconfdir=/etc"

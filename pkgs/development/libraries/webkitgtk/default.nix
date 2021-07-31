@@ -36,7 +36,7 @@
 , libidn
 , libedit
 , readline
-, sdk
+, usr-include
 , libGL
 , libGLU
 , mesa
@@ -177,7 +177,7 @@ stdenv.mkDerivation rec {
     # (We pick just that one because using the other headers from `sdk` is not
     # compatible with our C++ standard library)
     (runCommandNoCC "${pname}_headers" {} ''
-      install -Dm444 "${lib.getDev sdk}"/include/libproc.h "$out"/include/libproc.h
+      install -Dm444 "${usr-include}"/libproc.h "$out"/include/libproc.h
     '')
   ] ++ lib.optionals stdenv.isLinux [
     bubblewrap

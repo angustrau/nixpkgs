@@ -13,7 +13,14 @@ stdenv.mkDerivation rec {
     ++ lib.optional stdenv.isDarwin Foundation;
 
 
-  configureFlags = lib.optional stdenv.isDarwin "--disable-sdltest";
+  configureFlags = [
+    "--disable-jpg-shared"
+    "--disable-png-shared"
+    "--disable-tif-shared"
+    "--disable-webp-shared"
+  ] ++ lib.optionals stdenv.isDarwin [
+    "--disable-imageio"
+  ];
 
   enableParallelBuilding = true;
 

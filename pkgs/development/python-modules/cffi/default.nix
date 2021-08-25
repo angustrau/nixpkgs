@@ -1,4 +1,4 @@
-{ lib, stdenv, buildPythonPackage, isPyPy, fetchPypi, libffi, pycparser, pytestCheckHook }:
+{ lib, stdenv, buildPythonPackage, isPyPy, fetchPypi, libffi, darwin, pycparser, pytestCheckHook }:
 
 if isPyPy then null else buildPythonPackage rec {
   pname = "cffi";
@@ -11,7 +11,15 @@ if isPyPy then null else buildPythonPackage rec {
 
   outputs = [ "out" "dev" ];
 
-  buildInputs = [ libffi ];
+  buildInputs = if (stdenv.isDarwin && stdenv.isAarch64) then [
+    # Use platform libffi on macOS
+    # The native version has a required entitlement
+    # https://cffi.readthedocs.io/en/latest/using.html#callbacks
+    # https://foss.heptapod.net/pypy/cffi/-/issues/391
+    darwin.apple_sdk.frameworks.ffi
+  ] else [
+    libffi
+  ];
 
   propagatedBuildInputs = [ pycparser ];
 
@@ -31,9 +39,10 @@ if isPyPy then null else buildPythonPackage rec {
 
   # The tests use -Werror but with python3.6 clang detects some unreachable code.
   NIX_CFLAGS_COMPILE = lib.optionalString stdenv.cc.isClang
-    "-Wno-unused-command-line-argument -Wno-unreachable-code";
+    "-Wno-unused-command-line-argument -Wno-unreachable-code -Wno-c++11-narrowing"
+    + lib.optionalString (stdenv.isDarwin && stdenv.isAarch64) " -I${darwin.apple_sdk.frameworks.ffi}/include/ffi";
 
-  doCheck = !stdenv.hostPlatform.isMusl && !stdenv.isDarwin; # TODO: Investigate
+  doCheck = !stdenv.hostPlatform.isMusl; # TODO: Investigate
 
   checkInputs = [ pytestCheckHook ];
 

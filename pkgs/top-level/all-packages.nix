@@ -3825,6 +3825,8 @@ with pkgs;
 
   usbview = callPackage ../tools/misc/usbview { };
 
+  uswsusp = callPackage ../tools/misc/uswsusp { };
+
   uwuify = callPackage ../tools/misc/uwuify { };
 
   anthy = callPackage ../tools/inputmethods/anthy { };

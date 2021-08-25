@@ -5,11 +5,11 @@
 
 buildPythonPackage rec {
   pname = "pygame";
-  version = "2.0.1";
+  version = "2.0.2.dev2";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "8b1e7b63f47aafcdd8849933b206778747ef1802bd3d526aca45ed77141e4001";
+    sha256 = "06v1i2kz8qmm3wifwvv7d7nmzgynm5w0d35892lqrdkmj04gqpwd";
   };
 
   patches = [

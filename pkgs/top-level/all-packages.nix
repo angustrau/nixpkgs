@@ -31738,6 +31738,8 @@ with pkgs;
   # You still can override by passing more arguments.
   space-orbit = callPackage ../games/space-orbit { };
 
+  spacecadetpinball = callPackage ../games/spacecadetpinball { };
+
   spring = callPackage ../games/spring {
     asciidoc = asciidoc-full;
     boost = boost155;

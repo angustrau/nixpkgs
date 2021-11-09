@@ -6754,6 +6754,13 @@ in {
 
   pyobihai = callPackage ../development/python-modules/pyobihai { };
 
+  pyobjc = if stdenv.isDarwin then
+    callPackage ../development/python-modules/pyobjc {
+      inherit (pkgs.darwin.apple_sdk) frameworks;
+    }
+  else
+    throw "pyobjc can only be built on Mac OS";
+
   pyocr = callPackage ../development/python-modules/pyocr {
     tesseract = pkgs.tesseract4;
   };

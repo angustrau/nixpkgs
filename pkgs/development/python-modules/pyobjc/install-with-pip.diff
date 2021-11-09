@@ -1,0 +1,13 @@
+diff --git a/install.py b/install.py
+index b0e4b8ee8..eb8bd060c 100644
+--- a/install.py
++++ b/install.py
+@@ -222,7 +222,7 @@ def build_project(project, extra_args):
+ 
+     print("Installing {!r} using {!r}".format(project, sys.executable))
+     status = subprocess.call(
+-        [sys.executable, "setup.py", "install"] + extra_args, cwd=proj_dir
++        ["pip", "install", ".", "--no-index", "--verbose"] + extra_args, cwd=proj_dir
+     )
+ 
+     if status != 0:

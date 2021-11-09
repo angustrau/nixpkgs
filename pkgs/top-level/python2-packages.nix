@@ -465,11 +465,6 @@ with self; with super; {
 
   pylint = callPackage ../development/python-modules/pylint/1.9.nix { };
 
-  pyobjc = if stdenv.isDarwin then
-    callPackage ../development/python-modules/pyobjc { }
-  else
-    throw "pyobjc can only be built on Mac OS";
-
   pyPdf = callPackage ../development/python-modules/pypdf { };
 
   pypoppler = callPackage ../development/python-modules/pypoppler { };

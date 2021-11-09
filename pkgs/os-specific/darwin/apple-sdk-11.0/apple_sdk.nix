@@ -150,6 +150,16 @@ in rec {
         cp -r ${MacOSX-SDK}/usr/include/simd $out/include
       '';
     };
+
+    ffi = stdenv.mkDerivation {
+      name = "apple-lib-ffi";
+      dontUnpack = true;
+      installPhase = ''
+        mkdir -p $out/include $out/lib
+        cp -r ${MacOSX-SDK}/usr/include/ffi $out/include
+        cp ${MacOSX-SDK}/usr/lib/libffi* $out/lib
+      '';
+    };
   };
 
   overrides = super: {
@@ -177,5 +187,5 @@ in rec {
     })
   );
 
-  frameworks = bareFrameworks // overrides bareFrameworks;
+  frameworks = libs // bareFrameworks // overrides bareFrameworks;
 }

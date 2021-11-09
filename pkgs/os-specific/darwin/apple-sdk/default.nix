@@ -267,6 +267,16 @@ in rec {
         ln -s libsandbox.1.tbd $out/lib/libsandbox.tbd
       '';
     };
+
+    ffi = stdenv.mkDerivation {
+      name = "apple-lib-ffi";
+      dontUnpack = true;
+      installPhase = ''
+        mkdir -p $out/include $out/lib
+        cp -r ${lib.getDev sdk}/include/ffi $out/include
+        cp ${darwin-stubs}/usr/lib/libffi* $out/lib
+      '';
+    };
   };
 
   overrides = super: {
@@ -333,7 +343,7 @@ in rec {
     inherit (pkgs.darwin) libobjc;
   });
 
-  frameworks = bareFrameworks // overrides bareFrameworks;
+  frameworks = libs // bareFrameworks // overrides bareFrameworks;
 
   inherit sdk;
 }

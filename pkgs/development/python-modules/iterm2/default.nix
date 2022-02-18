@@ -1,5 +1,6 @@
 { lib, buildPythonPackage, fetchPypi
 , protobuf
+, pyobjc
 , websockets
 }:
 
@@ -12,12 +13,9 @@ buildPythonPackage rec {
     sha256 = "8245562ed713fd473520f81361cdc1b15835920e1ceb7d588678cd153e77c2b6";
   };
 
-  propagatedBuildInputs = [ protobuf websockets ];
+  propagatedBuildInputs = [ protobuf pyobjc websockets ];
 
-  # The tests require pyobjc. We can't use pyobjc because at
-  # time of writing the pyobjc derivation is disabled on python 3.
-  # iterm2 won't build on python 2 because it depends on websockets
-  # which is disabled below python 3.3.
+  # No tests are available
   doCheck = false;
 
   pythonImportsCheck = [ "iterm2" ];

@@ -94,6 +94,9 @@ Most contributions are based on and merged into these branches:
 For more information about contributing to the project, please visit
 the [contributing page](https://github.com/NixOS/nixpkgs/blob/master/CONTRIBUTING.md).
 
+<!--- FIXME: change project url. Do not merge ---> 
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/emilytrau/nixpkgs)
+
 # Donations
 
 The infrastructure for NixOS and related projects is maintained by a

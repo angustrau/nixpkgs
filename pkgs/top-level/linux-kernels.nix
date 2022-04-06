@@ -56,6 +56,8 @@ in {
   kernels = recurseIntoAttrs (lib.makeExtensible (self: with self;
     let callPackage = newScope self; in {
 
+    linux_asahi_m1 = callPackage ../os-specific/linux/kernel/linux-asahi.nix {};
+
     linux_mptcp_95 = callPackage ../os-specific/linux/kernel/linux-mptcp-95.nix {
       kernelPatches = linux_4_19.kernelPatches;
     };
@@ -509,6 +511,7 @@ in {
   };
 
   packages = recurseIntoAttrs (vanillaPackages // rtPackages // rpiPackages // {
+    linux_asahi_m1 = packagesFor kernels.linux_asahi_m1;
     linux_mptcp_95 = packagesFor kernels.linux_mptcp_95;
 
     # Intentionally lacks recurseIntoAttrs, as -rc kernels will quite likely break out-of-tree modules and cause failed Hydra builds.

@@ -33593,6 +33593,8 @@ with pkgs;
 
   loop = callPackage ../tools/misc/loop { };
 
+  m1n1 = callPackage ../tools/bootloaders/m1n1 { };
+
   maiko = callPackage ../applications/emulators/maiko { inherit (xorg) libX11; };
 
   mailcore2 = callPackage ../development/libraries/mailcore2 {

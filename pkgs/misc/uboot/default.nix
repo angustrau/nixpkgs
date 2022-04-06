@@ -15,6 +15,7 @@
 , armTrustedFirmwareRK3328
 , armTrustedFirmwareRK3399
 , armTrustedFirmwareS905
+, m1n1
 , buildPackages
 }:
 
@@ -150,6 +151,34 @@ in {
     extraMeta.platforms = ["armv7l-linux"];
     filesToInstall = ["MLO" "u-boot.img"];
   };
+
+  ubootAppleM1 = (buildUBoot rec {
+    version = "unstable-2022-04-01";
+
+    # tracking branch: https://github.com/AsahiLinux/u-boot/tree/asahi
+    src = fetchFromGitHub {
+      owner = "AsahiLinux";
+      repo = "u-boot";
+      rev = "6cd2157a4a2a66e9320cf13923083373dbb859e9";
+      sha256 = "vtUIt5Jx+loS9dKrjy/plsnqL1XRjL1gLh5ARFT8qAQ=";
+    };
+
+    defconfig = "apple_m1_defconfig";
+    extraMeta.platforms = [ "aarch64-linux" ];
+    filesToInstall = [ "m1n1-u-boot.bin" ];
+    extraConfig = ''
+      CONFIG_IDENT_STRING=" ${version}"
+    '';
+  }).overrideAttrs (o: {
+    # nixos's downstream patches are not applicable
+    patches = [ ];
+
+    preInstall = ''
+      # compress so that m1n1 knows U-Boot's size and can find things after it
+      gzip -n u-boot-nodtb.bin
+      cat ${m1n1}/m1n1.bin arch/arm/dts/t[68]*.dtb u-boot-nodtb.bin.gz > m1n1-u-boot.bin
+    '';
+  });
 
   ubootBananaPi = buildUBoot {
     defconfig = "Bananapi_defconfig";

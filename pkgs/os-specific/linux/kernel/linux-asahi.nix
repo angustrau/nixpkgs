@@ -1,17 +1,14 @@
-{ stdenv
-, lib
-, fetchurl
+{ lib
 , fetchFromGitHub
-, linux
-, linuxKernel
+, buildLinux
+# Enable 16K page size. Provides up to a 20% performance increase.
+, is16K ? true
 , ...
-}:
+} @ args:
 
-linuxKernel.manualConfig rec {
-  inherit stdenv lib;
-
+buildLinux (args // rec {
   # Tracking branch: https://github.com/AsahiLinux/linux/tree/asahi
-  version = "5.17.0-rc7-asahi-next-20220310-ARCH";
+  version = "5.17.0-rc7-asahi-next-20220310";
   src = fetchFromGitHub {
     owner = "AsahiLinux";
     repo = "linux";
@@ -19,12 +16,12 @@ linuxKernel.manualConfig rec {
     sha256 = "oHEy0QS7RkhR9Av68rqAAmR8kXi0ZR4yot0uGWfJOzw=";
   };
 
-  # Use kernel config from the Asahi Linux distro
-  # This config enables 16K page sizes
-  configfile = fetchurl {
-    # Tracking https://github.com/AsahiLinux/PKGBUILDs/blob/main/linux-asahi/config
-    url = "https://raw.githubusercontent.com/AsahiLinux/PKGBUILDs/5dd2336e765ba3dd34b5658e553af423aef87d97/linux-asahi/config";
-    sha256 = "0x19mwnsz0xca9xlxvh9nrk09sgnvq68n9lm6v3g244nhwha8pmh";
-  };
-  allowImportFromDerivation = true;
-}
+  extraConfig = lib.optionalString is16K ''
+    CONFIG_ARM64_4K_PAGES n
+    CONFIG_ARM64_16K_PAGES y
+    CONFIG_ARM64_64K_PAGES n
+  '';
+
+  modDirVersion = version;
+  extraMeta.branch = lib.versions.majorMinor version;
+} // (args.argsOverride or { }))

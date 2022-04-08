@@ -152,7 +152,7 @@ in {
     filesToInstall = ["MLO" "u-boot.img"];
   };
 
-  ubootAppleM1 = (buildUBoot rec {
+  ubootAsahiAppleM1 = (buildUBoot rec {
     version = "unstable-2022-04-01";
 
     # tracking branch: https://github.com/AsahiLinux/u-boot/tree/asahi

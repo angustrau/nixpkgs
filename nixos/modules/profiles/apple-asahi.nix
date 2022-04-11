@@ -92,8 +92,8 @@ in
     ];
 
     # Kernel modules as supported by the Asahi Linux project
-    # https://github.com/AsahiLinux/asahi-scripts/blob/6f675aed77a9c7417ece2ae8ed554268608125a7/initcpio/install/asahi
-    boot.initrd.availableKernelModules = lib.mkForce [ "apple-mailbox" "nvme_apple" "pinctrl-apple-gpio" "macsmc" "macsmc-rtkit" "i2c-apple" "tps6598x" "apple-dart" "dwc3" "dwc3-of-simple" "xhci-pci" "pcie-apple" "gpio_macsmc" "spi-apple" "spi-hid-apple" "spi-hid-apple-of" "rtc-macsmc" "simple-mfd-spmi" "spmi-apple-controller" "nvmem_spmi_mfd" ];
+    # cat /proc/modules | awk '{ FS = " "; ORS=" "; print "\"" $1 "\"" }'
+    boot.initrd.availableKernelModules = lib.mkForce [ "joydev" "usbhid" "des_generic" "libdes" "md4" "snd_soc_apple_silicon" "snd_soc_simple_card_utils" "macsmc_reboot" "macsmc_power" "macsmc_hid" "snd_soc_apple_mca" "snd_soc_tas2770" "snd_soc_cs42l42" "apple_soc_cpufreq" "apple_admac" "clk_apple_nco" "xhci_plat_hcd" "nls_iso8859_1" "brcmfmac" "brcmutil" "cfg80211" "tg3" "xhci_pci" "xhci_hcd" "rfkill" "ptp" "crypto_user" "fuse" "nvmem_spmi_mfd" "tps6598x" "typec" "rtc_macsmc" "simple_mfd_spmi" "regmap_spmi" "pcie_apple" "pci_host_common" "dwc3" "udc_core" "nvme_apple" "apple_sart" "apple_mailbox" "pinctrl_apple_gpio" "spmi_apple_controller" "i2c_apple" "apple_dart" ];
 
     # Firmware
     systemd.services.asahi-proprietary-firmware = {

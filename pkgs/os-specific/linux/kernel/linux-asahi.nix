@@ -7,6 +7,8 @@
 } @ args:
 
 buildLinux (args // rec {
+  # Eventually replace this with mainline kernel once hardware
+  # patches are stabalised and upstreamed
   # Tracking branch: https://github.com/AsahiLinux/linux/tree/asahi
   version = "5.17.0-rc7-asahi-next-20220310";
   src = fetchFromGitHub {

@@ -76,6 +76,7 @@ my @initrdKernelModules = ();
 my @initrdAvailableKernelModules = ();
 my @modulePackages = ();
 my @imports;
+my $detectedHardware = 0;
 
 
 sub debug {
@@ -120,6 +121,16 @@ push @kernelModules, "kvm-amd" if hasCPUFeature "svm";
 
 push @attrs, "hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;" if cpuManufacturer "AuthenticAMD";
 push @attrs, "hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;" if cpuManufacturer "GenuineIntel";
+
+
+# Check if we're on Apple aarch64-linux (Asahi Linux Project)
+if (-e "/proc/device-tree/compatible") {
+    my $compatible = read_file("/proc/device-tree/compatible");
+    if (index($compatible, "apple,arm-platform") != -1) {
+        push @imports, "(modulesPath + \"/profiles/apple-asahi.nix\")";
+        $detectedHardware = 1;
+    }
+}
 
 
 # Look at the PCI devices and add necessary modules.  Note that most
@@ -312,7 +323,7 @@ if ($virt eq "systemd-nspawn") {
 # Provide firmware for devices that are not detected by this script,
 # unless we're in a VM/container.
 push @imports, "(modulesPath + \"/installer/scan/not-detected.nix\")"
-    if $virt eq "none";
+    if $virt eq "none" && not $detectedHardware;
 
 
 # For a device name like /dev/sda1, find a more stable path like

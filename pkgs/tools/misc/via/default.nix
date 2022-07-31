@@ -2,13 +2,13 @@
 
 let
   pname = "via";
-  version = "1.3.1";
+  version = "2.0.5";
   name = "${pname}-${version}";
   nameExecutable = pname;
   src = fetchurl {
     url = "https://github.com/the-via/releases/releases/download/v${version}/via-${version}-linux.AppImage";
     name = "via-${version}-linux.AppImage";
-    sha256 = "d2cd73d280a265149fedb24161ec7c575523596c4d30898ad6b5875e09b3f34a";
+    sha256 = "1srw2jymxysy2kfv0zdmqb0ydbij41ks46vd2w43zswmyz6nvwq0";
   };
   appimageContents = appimageTools.extractType2 { inherit name src; };
 in appimageTools.wrapType2 {
@@ -22,8 +22,8 @@ in appimageTools.wrapType2 {
 
   extraInstallCommands = ''
     mv $out/bin/${name} $out/bin/${pname}
-    install -m 444 -D ${appimageContents}/via.desktop -t $out/share/applications
-    substituteInPlace $out/share/applications/via.desktop \
+    install -m 444 -D ${appimageContents}/via-nativia.desktop -t $out/share/applications
+    substituteInPlace $out/share/applications/via-nativia.desktop \
       --replace 'Exec=AppRun' 'Exec=${pname}'
     cp -r ${appimageContents}/usr/share/icons $out/share
 

@@ -7141,6 +7141,8 @@ in {
 
   pyalmond = callPackage ../development/python-modules/pyalmond { };
 
+  pyamf = callPackage ../development/python-modules/pyamf { };
+
   pyamg = callPackage ../development/python-modules/pyamg { };
 
   pyaml = callPackage ../development/python-modules/pyaml { };

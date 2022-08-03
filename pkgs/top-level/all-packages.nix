@@ -33573,6 +33573,8 @@ with pkgs;
 
   dcm2niix = callPackage ../applications/science/biology/dcm2niix { };
 
+  deblaze = callPackage ../tools/security/deblaze { };
+
   deepdiff = with python3Packages; toPythonApplication deepdiff;
 
   deepsea = callPackage ../tools/security/deepsea {

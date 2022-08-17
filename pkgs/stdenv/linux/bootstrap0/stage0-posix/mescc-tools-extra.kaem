@@ -1,0 +1,44 @@
+# This is a modified version of stage0-posix/mescc-tools-extra/mescc-tools-extra.kaem
+# https://github.com/oriansj/stage0-posix-x86/blob/7d4f90f6e75a5a4bcc382f074c65442a5c28c313/mescc-tools-full-kaem.kaem
+
+## Copyright (C) 2017 Jeremiah Orians
+## This file is part of mescc-tools.
+##
+## mescc-tools is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+##
+## mescc-tools is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with mescc-tools.  If not, see <http://www.gnu.org/licenses/>.
+
+## You need to set the following environmental variables to build the programs:
+## ARCH="${ARCH:-x86}"
+## M2LIBC="${M2libc:-./M2libc}"
+## TOOLS="${TOOLS:-../bin}"
+## BINDIR="${BINDIR:-../bin}"
+
+set -ex
+
+M2LIBC_PATH=${src}/M2libc
+PATH=${BUILD_INPUTS_PATH}
+
+mkdir0 "-p" ${out}/bin
+
+alias CC="M2-Mesoplanet --architecture ${ARCH} -f"
+
+CC ${src}/mescc-tools-extra/sha256sum.c -o ${out}/bin/sha256sum
+CC ${src}/mescc-tools-extra/match.c -o ${out}/bin/match
+CC ${src}/mescc-tools-extra/mkdir.c -o ${out}/bin/mkdir
+CC ${src}/mescc-tools-extra/untar.c -o ${out}/bin/untar
+CC ${src}/mescc-tools-extra/ungz.c -o ${out}/bin/ungz
+CC ${src}/mescc-tools-extra/catm.c -o ${out}/bin/catm
+CC ${src}/mescc-tools-extra/cp.c -o ${out}/bin/cp
+CC ${src}/mescc-tools-extra/chmod.c -o ${out}/bin/chmod
+CC ${src}/mescc-tools-extra/rm.c -o ${out}/bin/rm
+CC ${src}/mescc-tools-extra/replace.c -o ${out}/bin/replace

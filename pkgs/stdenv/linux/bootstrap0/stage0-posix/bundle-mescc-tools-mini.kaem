@@ -1,0 +1,11 @@
+${mkdir0} -p ${out}/bin
+
+${ln0} ${hex1} ${out}/bin/hex1
+${ln0} ${hex2} ${out}/bin/hex2
+${ln0} ${blood-elf-0} ${out}/bin/blood-elf-0
+${ln0} ${M1} ${out}/bin/M1
+${ln0} ${M2} ${out}/bin/M2
+${ln0} ${kaem} ${out}/bin/kaem
+
+${ln0} ${mkdir0} ${out}/bin/mkdir0
+${ln0} ${ln0} ${out}/bin/ln0

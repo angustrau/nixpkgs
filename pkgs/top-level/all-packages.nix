@@ -210,6 +210,8 @@ with pkgs;
     stdenv = gcc10StdenvCompat;
   };
 
+  bootstrap0 = callPackage ../stdenv/linux/bootstrap0 { };
+
   addOpenGLRunpath = callPackage ../build-support/add-opengl-runpath { };
 
   quickemu = callPackage ../development/quickemu { };

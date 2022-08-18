@@ -1,0 +1,43 @@
+PATH=${BUILD_INPUTS_PATH}
+mkdir -p ${out}/bin
+
+cp ${hex1} ${out}/bin/hex1
+chmod 555 ${out}/bin/hex1
+cp ${hex2} ${out}/bin/hex2
+chmod 555 ${out}/bin/hex2
+cp ${M1} ${out}/bin/M1
+chmod 555 ${out}/bin/M1
+cp ${M2} ${out}/bin/M2
+chmod 555 ${out}/bin/M2
+cp ${kaem} ${out}/bin/kaem
+chmod 555 ${out}/bin/kaem
+
+cp ${mescc-tools-full}/bin/blood-elf ${out}/bin/
+chmod 555 ${out}/bin/blood-elf
+cp ${mescc-tools-full}/bin/get_machine ${out}/bin/
+chmod 555 ${out}/bin/get_machine
+cp ${mescc-tools-full}/bin/M2-Planet ${out}/bin/
+chmod 555 ${out}/bin/M2-Planet
+cp ${mescc-tools-full}/bin/M2-Mesoplanet ${out}/bin/
+chmod 555 ${out}/bin/M2-Mesoplanet
+
+cp ${mescc-tools-extra}/bin/catm ${out}/bin/
+chmod 555 ${out}/bin/catm
+cp ${mescc-tools-extra}/bin/chmod ${out}/bin/
+chmod 555 ${out}/bin/chmod
+cp ${mescc-tools-extra}/bin/cp ${out}/bin/
+chmod 555 ${out}/bin/cp
+cp ${mescc-tools-extra}/bin/match ${out}/bin/
+chmod 555 ${out}/bin/match
+cp ${mescc-tools-extra}/bin/mkdir ${out}/bin/
+chmod 555 ${out}/bin/mkdir
+cp ${mescc-tools-extra}/bin/replace ${out}/bin/
+chmod 555 ${out}/bin/replace
+cp ${mescc-tools-extra}/bin/rm ${out}/bin/
+chmod 555 ${out}/bin/rm
+cp ${mescc-tools-extra}/bin/sha256sum ${out}/bin/
+chmod 555 ${out}/bin/sha256sum
+cp ${mescc-tools-extra}/bin/ungz ${out}/bin/
+chmod 555 ${out}/bin/ungz
+cp ${mescc-tools-extra}/bin/untar ${out}/bin/
+chmod 555 ${out}/bin/untar

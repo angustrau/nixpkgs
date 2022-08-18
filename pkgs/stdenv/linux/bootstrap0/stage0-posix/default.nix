@@ -77,7 +77,15 @@ let
     script = ./mescc-tools-extra.kaem;
     buildInputs = [ mescc-tools-mini mescc-tools-full ];
   };
+
+  mescc-tools = run-kaem {
+    name = "mescc-tools";
+    script = ./bundle-mescc-tools.kaem;
+    buildInputs = [ mescc-tools-extra ];
+    extraEnv = {
+      inherit mescc-tools-mini mescc-tools-full mescc-tools-extra;
+      inherit (mini-kaem) hex1 hex2 M1 M2 kaem;
+    };
+  };
 in
-{
-  inherit mescc-tools-mini mescc-tools-full mescc-tools-extra;
-}
+mescc-tools

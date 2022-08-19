@@ -11,48 +11,87 @@ rec {
     inherit (localSystem) system;
   };
 
-  writeTextFileLoader = builtins.toFile "toFileLoader" ''
-    ''${cp} ''${contentsPath} ''${out}
-  '';
-  writeTextFile = name: contents: derivation {
-    inherit name system contents;
-    passAsFile = [ "contents" ];
+  runKaemScript = {
+    name,
+    script,
+    args ? [],
+    buildInputs ? [],
+    ...
+  }@extraArgs: derivation (extraArgs // {
+    inherit name system script;
     builder = "${mescc-tools}/bin/kaem";
     args = [
       "--verbose"
       "--strict"
       "--file"
-      writeTextFileLoader
-    ];
-    cp = "${mescc-tools}/bin/cp";
+      (builtins.toFile "run-kaem-script.kaem" ''
+        set -ex
+        PATH=''${BUILD_INPUTS_PATH}
+        unset BUILD_INPUTS_PATH
+        exec kaem --verbose --strict --file ''${script}
+      '')
+      "--"
+    ] ++ args;
+    BUILD_INPUTS_PATH = lib.makeBinPath ([ mescc-tools ] ++ buildInputs);
+  });
+
+  writeTextFile = {
+    name,
+    text,
+    executable ? false,
+    prefix ? ""
+  }: runKaemScript {
+    inherit name text executable prefix;
+    passAsFile = [ "text" ];
+    preferLocalBuild = true;
+    allowSubstitutes = false;
+    script = builtins.toFile "writeTextFileLoader" ''
+      if match x''${prefix} x; then
+        dest=''${out}
+      else
+        mkdir -p ''${out}/''${prefix}
+        dest=''${out}/''${prefix}''${name}
+      fi
+      cp ''${textPath} ''${dest}
+      if match x''${executable} x1; then
+        chmod 555 ''${dest}
+      fi
+    '';
   };
 
-  runScript = name: script: derivation {
-    inherit name system;
-    builder = "${mescc-tools}/bin/kaem";
-    args = [
-      "--verbose"
-      "--strict"
-      "--file"
-      (writeTextFile "${name}-script" (''
-        PATH=${mescc-tools}/bin
-      '' + script))
-    ];
+  writeText = name: text: writeTextFile { inherit name text; };
+
+  runKaem = {
+    name,
+    scriptText,
+    args ? [],
+    buildInputs ? [],
+    ...
+  }@extraArgs: runKaemScript (extraArgs // {
+    inherit name args buildInputs;
+    script = writeText "${name}.kaem" (''
+      set -ex
+    '' + scriptText);
+  });
+
+  kaemWrapper = runKaem {
+    name = "kaem-wrapper";
+    scriptText = ''
+      M2LIBC_PATH=${mescc-tools.M2libc}
+      replace --file ${./kaem-wrapper.c} --output kaem-wrapper.c --match-on @kaem@ --replace-with "${mescc-tools}/bin/kaem"
+      M2-Mesoplanet -f kaem-wrapper.c -o ''${out}
+    '';
   };
 
-  ungz = input: runScript "ungz" ''
-    ungz --file ${input} --output ''${out}
-  '';
-
-  untar = input: runScript "untar" ''
-    mkdir ''${out}
-    cd ''${out}
-    untar --file ${input}
-  '';
-
-  fetchtarball = args: untar (ungz (fetchurl args));
-
-  mescc = import ./mescc {
-    inherit fetchtarball mescc-tools;
+  writeScriptBin = name: text: writeTextFile {
+    inherit name;
+    text = ''
+      #!${kaemWrapper}
+      PATH=${mescc-tools}/bin:''${PATH}
+    '' + text;
+    executable = true;
+    prefix = "bin/";
   };
+
+  mescc = import ./mescc { inherit system fetchurl runKaemScript; };
 }

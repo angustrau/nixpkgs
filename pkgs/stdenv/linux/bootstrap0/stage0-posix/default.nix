@@ -88,4 +88,6 @@ let
     };
   };
 in
-mescc-tools
+mescc-tools // {
+  M2libc = "${src}/M2libc";
+}

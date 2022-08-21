@@ -1,4 +1,4 @@
-{ system, fetchurl, runKaemScript }:
+{ system, fetchurl, runKaem, runKaemScript }:
 let
   mesVersion = "0.24";
   mesSrc = fetchurl {
@@ -23,6 +23,14 @@ let
     };
   }).${system};
 
+  mesccConfigH = runKaem {
+    name = "mescc-config.h-${mesVersion}";
+    scriptText = ''
+      mkdir -p ''${out}/mes
+      replace --file ${./config.h} --output ''${out}/mes/config.h --match-on @VERSION@ --replace-with ${mesVersion}
+    '';
+  };
+
   mescc-unwrapped = runKaemScript {
     name = "mescc-${mesVersion}";
     script = ./kaem.run;
@@ -46,5 +54,5 @@ let
   '';
 in
 {
-  inherit mescc-unwrapped mesccScript;
+  inherit mescc-unwrapped mesccScript mesPrefix mesccConfigH;
 }

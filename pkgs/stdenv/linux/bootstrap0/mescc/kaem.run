@@ -270,6 +270,19 @@ cp crt1.s ${prefix}/lib/${mes_cpu}-mes/
 cp ${libdir}/linux/${mes_cpu}-mes/elf32-footer-single-main.hex2 ${prefix}/lib/linux/${mes_cpu}-mes/
 cp ${libdir}/linux/${mes_cpu}-mes/elf32-header.hex2 ${prefix}/lib/linux/${mes_cpu}-mes/
 
+# Install libraries in alternate location
+cp ${libdir}/${mes_cpu}-mes/libc.a ${prefix}/lib/
+cp ${libdir}/${mes_cpu}-mes/libc+tcc.a ${prefix}/lib/
+cp ${libdir}/${mes_cpu}-mes/libmescc.a ${prefix}/lib/
+cp ${libdir}/${mes_cpu}-mes/libc.s ${prefix}/lib/
+cp ${libdir}/${mes_cpu}-mes/libc+tcc.s ${prefix}/lib/
+cp ${libdir}/${mes_cpu}-mes/libmescc.s ${prefix}/lib/
+cp ${libdir}/${mes_cpu}-mes/${mes_cpu}.M1 ${prefix}/lib/
+cp crt1.o ${prefix}/lib/
+cp crt1.s ${prefix}/lib/
+cp ${libdir}/linux/${mes_cpu}-mes/elf32-footer-single-main.hex2 ${prefix}/lib/linux/
+cp ${libdir}/linux/${mes_cpu}-mes/elf32-header.hex2 ${prefix}/lib/linux/
+
 # Install header files
 cp include/alloca.h ${incdir}/alloca.h
 cp include/argz.h ${incdir}/argz.h

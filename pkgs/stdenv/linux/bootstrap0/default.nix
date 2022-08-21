@@ -14,7 +14,6 @@ rec {
   runKaemScript = {
     name,
     script,
-    args ? [],
     buildInputs ? [],
     ...
   }@extraArgs: derivation (extraArgs // {
@@ -26,13 +25,16 @@ rec {
       "--file"
       (builtins.toFile "run-kaem-script.kaem" ''
         set -ex
-        PATH=''${BUILD_INPUTS_PATH}
+        PATH=''${BUILD_INPUTS_PATH}:
+        LD_LIBRARY_PATH=''${BUILD_INPUTS_LIB}:
         unset BUILD_INPUTS_PATH
+        unset BUILD_INPUTS_LIB
         exec kaem --verbose --strict --file ''${script}
       '')
       "--"
-    ] ++ args;
+    ];
     BUILD_INPUTS_PATH = lib.makeBinPath ([ mescc-tools ] ++ buildInputs);
+    BUILD_INPUTS_LIB = lib.makeLibraryPath buildInputs;
   });
 
   writeTextFile = {
@@ -64,11 +66,10 @@ rec {
   runKaem = {
     name,
     scriptText,
-    args ? [],
     buildInputs ? [],
     ...
   }@extraArgs: runKaemScript (extraArgs // {
-    inherit name args buildInputs;
+    inherit name buildInputs;
     script = writeText "${name}.kaem" (''
       set -ex
     '' + scriptText);
@@ -98,4 +99,6 @@ rec {
   tcc = import ./tcc { inherit lib system runKaem mescc; };
 
   gnumake = import ./gnumake { inherit fetchurl runKaem tcc; };
+
+  cproc = import ./cproc { inherit fetchurl runKaem tcc gnumake; };
 }

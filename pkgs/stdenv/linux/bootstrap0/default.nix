@@ -93,5 +93,7 @@ rec {
     prefix = "bin/";
   };
 
-  mescc = import ./mescc { inherit system fetchurl runKaemScript; };
+  mescc = import ./mescc { inherit system fetchurl runKaem runKaemScript; };
+
+  tcc = import ./tcc { inherit lib system runKaem mescc; };
 }

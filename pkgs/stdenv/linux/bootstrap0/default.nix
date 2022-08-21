@@ -96,4 +96,6 @@ rec {
   mescc = import ./mescc { inherit system fetchurl runKaem runKaemScript; };
 
   tcc = import ./tcc { inherit lib system runKaem mescc; };
+
+  gnumake = import ./gnumake { inherit fetchurl runKaem tcc; };
 }

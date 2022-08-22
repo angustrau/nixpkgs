@@ -54,7 +54,7 @@ runKaem {
     tcc -c -Iglob -DHAVE_STRDUP -DHAVE_DIRENT_H glob/glob.c
 
     # Link
-    tcc -o ''${out}/bin/make getopt.o getopt1.o ar.o arscan.o commands.o default.o dir.o expand.o file.o function.o implicit.o job.o main.o misc.o read.o remake.o rule.o signame.o variable.o version.o vpath.o hash.o remote-stub.o getloadavg.o fnmatch.o glob.o
+    tcc -o ''${out}/bin/make getopt.o -static getopt1.o ar.o arscan.o commands.o default.o dir.o expand.o file.o function.o implicit.o job.o main.o misc.o read.o remake.o rule.o signame.o variable.o version.o vpath.o hash.o remote-stub.o getloadavg.o fnmatch.o glob.o
 
     # Test
     ''${out}/bin/make --version

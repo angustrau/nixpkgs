@@ -6,6 +6,15 @@ let
     sha256 = "00r0pcawgid6bfm8l7vhls3zs1ksca3vs58vjjjq9asarnwyfg31";
   };
 
+  alltypes_h = runKaem {
+    name = "alltypes.h-${version}";
+    buildInputs = [ sed ];
+    scriptText = ''
+      catm ''${out} ${src}/arch/i386/bits/alltypes.h.in ${src}/include/alltypes.h.in
+      sed -f ${src}/tools/mkalltypes.sed -i ''${out}
+    '';
+  };
+
   syscall_h = runKaem {
     name = "syscall.h-${version}";
     buildInputs = [ sed coreutils ];
@@ -30,17 +39,20 @@ runKaem {
     replace --file src/include/features.h --output src/include/features.h --match-on "__weak__, " --replace-with ""
     rm -rf src/complex src/math/i386/ src/math/sqrtl.c
 
-    mkdir -p include/bits/ lib/
-    cp --preserve="mode" ${syscall_h} include/bits/syscall.h
+    mkdir -p obj/include/bits/ lib/
+    cp --preserve="mode" ${alltypes_h} obj/include/bits/alltypes.h
+    cp --preserve="mode" ${syscall_h} obj/include/bits/syscall.h
 
     make \
       prefix=''${out} \
+      libdir=''${out}/lib \
+      includedir=''${out}/include \
       CC=tcc \
       ARCH=i386 \
       CROSS_COMPILE= \
       AR="tcc -ar" \
       RANLIB=true \
-      CFLAGS="-DSYSCALL_NO_TLS" \
+      CFLAGS="-DSYSCALL_NO_TLS -static" \
       SHARED_LIBS= \
       TOOL_LIBS= \
       EMPTY_LIBS= \
@@ -49,12 +61,14 @@ runKaem {
     chmod -R a+r .
     make \
       prefix=''${out} \
+      libdir=''${out}/lib \
+      includedir=''${out}/include \
       CC=tcc \
       ARCH=i386 \
       CROSS_COMPILE= \
       AR="tcc -ar" \
       RANLIB=true \
-      CFLAGS="-DSYSCALL_NO_TLS" \
+      CFLAGS="-DSYSCALL_NO_TLS -static" \
       SHARED_LIBS= \
       TOOL_LIBS= \
       EMPTY_LIBS= \

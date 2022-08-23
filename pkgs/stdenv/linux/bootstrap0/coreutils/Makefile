@@ -16,62 +16,60 @@ AR      = tcc -ar
 bindir=$(PREFIX)/bin
 
 CFLAGS  = -I . -I lib \
-		  -include mbstate_t.h \
-		  -include "sys/stat.h" \
-		  -DPACKAGE=\"$(PACKAGE)\" \
-		  -DPACKAGE_NAME=\"$(PACKAGE_NAME)\" \
-		  -DGNU_PACKAGE=\"$(PACKAGE_NAME)\" \
-		  -DPACKAGE_BUGREPORT=\"$(PACKAGE_BUGREPORT)\" \
-		  -DPACKAGE_VERSION=\"$(PACKAGE_VERSION)\" \
-		  -DVERSION=\"$(VERSION)\" \
-		  -DHAVE_LIMITS_H=1 \
-		  -DHAVE_DECL_FREE=1 \
-		  -DHAVE_DECL_MALLOC=1 \
-		  -DHAVE_MALLOC=1 \
-		  -DHAVE_STDLIB_H=1 \
-		  -DHAVE_REALLOC=1 \
-		  -DHAVE_DECL_REALLOC=1 \
-		  -DHAVE_DECL_GETENV=1 \
-		  -DHAVE_DIRENT_H=1 \
-		  -DHAVE_DECL___FPENDING=0 \
-		  -DSTDC_HEADERS=1 \
-		  -DHAVE_ALLOCA_H=1 \
-		  -DHAVE_STRUCT_TIMESPEC=1 \
-		  -DHAVE_STRING_H=1 \
-		  -DHAVE_SYS_TIME_H=1 \
-		  -DTIME_WITH_SYS_TIME=1 \
-		  -DHAVE_STDINT_H=1 \
-		  -DMB_LEN_MAX=16 \
-		  -DLIBDIR=\"$(PREFIX)/lib/mes\" \
-		  -DHAVE_DECL_WCWIDTH=0 \
-		  -DHAVE_SYS_STAT_H=1 \
-		  -DHAVE_INTTYPES_H=1 \
-		  -DHAVE_DECL_MEMCHR=1 \
-		  -DHAVE_MEMORY_H=1 \
-		  -DPENDING_OUTPUT_N_BYTES=1 \
-		  -DCHAR_MIN=0 \
-		  -DLOCALEDIR=NULL \
-		  -DHAVE_FCNTL_H=1 \
-		  -DEPERM=1 \
-		  -DHAVE_DECL_STRTOUL=1 \
-		  -DHAVE_DECL_STRTOULL=1 \
-		  -DHAVE_DECL_STRTOL=1 \
-		  -DHAVE_DECL_STRTOLL=1 \
-		  -DHAVE_RMDIR=1 \
-		  -DRMDIR_ERRNO_NOT_EMPTY=39 \
-		  -DHAVE_DECL_FREE=1 \
-		  -DENOTEMPTY=1 \
-		  -DLSTAT_FOLLOWS_SLASHED_SYMLINK=1 \
-		  -DHAVE_DECL_DIRFD=0 \
-		  -DLC_TIME=\"C\" \
-		  -DLC_COLLATE=\"C\" \
-		  -DHAVE_GETCWD=1 \
-		  -Dmy_strftime=nstrftime \
-		  -Dmkstemp=rpl_mkstemp \
-		  -DDIR_TO_FD\(Dir_p\)=-1 \
-		  -DUTILS_OPEN_MAX=1000 \
-		  -Dmajor_t=unsigned \
-		  -Dminor_t=unsigned
+          -DPACKAGE=\"$(PACKAGE)\" \
+          -DPACKAGE_NAME=\"$(PACKAGE_NAME)\" \
+          -DGNU_PACKAGE=\"$(PACKAGE_NAME)\" \
+          -DPACKAGE_BUGREPORT=\"$(PACKAGE_BUGREPORT)\" \
+          -DPACKAGE_VERSION=\"$(PACKAGE_VERSION)\" \
+          -DVERSION=\"$(VERSION)\" \
+          -DHAVE_LIMITS_H=1 \
+          -DHAVE_DECL_FREE=1 \
+          -DHAVE_DECL_MALLOC=1 \
+          -DHAVE_MALLOC=1 \
+          -DHAVE_STDLIB_H=1 \
+          -DHAVE_REALLOC=1 \
+          -DHAVE_DECL_REALLOC=1 \
+          -DHAVE_DECL_GETENV=1 \
+          -DHAVE_DIRENT_H=1 \
+          -DHAVE_DECL___FPENDING=0 \
+          -DSTDC_HEADERS=1 \
+          -DHAVE_ALLOCA_H=1 \
+          -DHAVE_STRUCT_TIMESPEC=1 \
+          -DHAVE_STRING_H=1 \
+          -DHAVE_SYS_TIME_H=1 \
+          -DTIME_WITH_SYS_TIME=1 \
+          -DHAVE_STDINT_H=1 \
+          -DMB_LEN_MAX=16 \
+          -DLIBDIR=\"$(PREFIX)/lib/mes\" \
+          -DHAVE_DECL_WCWIDTH=0 \
+          -DHAVE_SYS_STAT_H=1 \
+          -DHAVE_INTTYPES_H=1 \
+          -DHAVE_DECL_MEMCHR=1 \
+          -DHAVE_MEMORY_H=1 \
+          -DPENDING_OUTPUT_N_BYTES=1 \
+          -DCHAR_MIN=0 \
+          -DLOCALEDIR=NULL \
+          -DHAVE_FCNTL_H=1 \
+          -DEPERM=1 \
+          -DHAVE_DECL_STRTOUL=1 \
+          -DHAVE_DECL_STRTOULL=1 \
+          -DHAVE_DECL_STRTOL=1 \
+          -DHAVE_DECL_STRTOLL=1 \
+          -DHAVE_RMDIR=1 \
+          -DRMDIR_ERRNO_NOT_EMPTY=39 \
+          -DHAVE_DECL_FREE=1 \
+          -DENOTEMPTY=1 \
+          -DLSTAT_FOLLOWS_SLASHED_SYMLINK=1 \
+          -DHAVE_DECL_DIRFD=0 \
+          -DLC_TIME=\"C\" \
+          -DLC_COLLATE=\"C\" \
+          -DHAVE_GETCWD=1 \
+          -Dmy_strftime=nstrftime \
+          -Dmkstemp=rpl_mkstemp \
+          -DDIR_TO_FD\(Dir_p\)=-1 \
+          -DUTILS_OPEN_MAX=1000 \
+          -Dmajor_t=unsigned \
+          -Dminor_t=unsigned
 
 LDFLAGS=-static
 
@@ -79,7 +77,7 @@ LDFLAGS=-static
 
 SRC_DIR=./src
 
-COREUTILS = basename cat chmod cksum csplit cut echo expand false fmt fold head id join kill link ln logname mkfifo mkdir mknod nl od paste pathchk printf ptx pwd readlink rmdir seq sleep split sum tail tee tr tsort unexpand unlink wc whoami tac test true yes
+COREUTILS = basename cat chmod cksum csplit cut echo expand false fmt fold head id join kill link ln logname mkfifo mkdir mknod nl od paste pathchk printf ptx pwd readlink rmdir seq sleep split sum tail tee tr tsort unexpand unlink wc whoami tac test touch true yes
 
 BINARIES = $(addprefix $(SRC_DIR)/, $(COREUTILS))
 
@@ -94,9 +92,9 @@ LIB_OBJECTS = $(addprefix $(LIB_DIR)/, $(addsuffix .o, $(LIB_SRC)))
 $(SRC_DIR)/false.c: $(SRC_DIR)/true.c
 	cp $< $@
 	sed -i -e s/true/false/g \
-		  -e s/success/failure/g \
-		  -e 's/(EXIT_SUCCESS)/(EXIT_FAILURE)/g' \
-		  $@
+          -e s/success/failure/g \
+          -e 's/(EXIT_SUCCESS)/(EXIT_FAILURE)/g' \
+          $@
 
 $(LIB_DIR)/libfettish.a: $(LIB_OBJECTS)
 	$(AR) cr $@ $^

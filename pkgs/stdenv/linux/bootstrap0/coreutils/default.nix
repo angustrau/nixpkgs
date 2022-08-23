@@ -1,5 +1,5 @@
 # We don't build touch
-{ fetchurl, runKaem, tcc, gnumake }:
+{ fetchurl, runKaem, tcc, gnumake, sed, patch }:
 let
   version = "5.0";
   src = fetchurl {
@@ -9,7 +9,7 @@ let
 in
 runKaem {
   name = "coreutils-${version}";
-  buildInputs = [ tcc gnumake ];
+  buildInputs = [ tcc gnumake sed patch ];
   scriptText = ''
     ungz --file ${src} --output coreutils.tar
     untar --file coreutils.tar
@@ -19,8 +19,14 @@ runKaem {
     cp lib/fnmatch_.h lib/fnmatch.h
     cp lib/ftw_.h lib/ftw.h
     cp lib/search_.h lib/search.h
-    cp ${./mbstate_t.h} mbstate_t.h
-    replace --file src/ls.c --output src/ls.c --match-on "strcoll" --replace-with "strcmp"
+    rm src/false.c
+
+    patch -Np0 -i ${./patches/modechange.patch}
+    patch -Np0 -i ${./patches/mbstate.patch}
+    patch -Np0 -i ${./patches/ls-strcmp.patch}
+    patch -Np0 -i ${./patches/touch-getdate.patch}
+    patch -Np0 -i ${./patches/touch-dereference.patch}
+    patch -Np0 -i ${./patches/tac-uint64.patch}
 
     mkdir -p ''${out}/bin
     make -f ${./Makefile} PREFIX=''${out}

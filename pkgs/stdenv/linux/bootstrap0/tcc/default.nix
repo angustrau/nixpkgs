@@ -291,5 +291,5 @@ tcc // {
   src = mainlineSrc;
   version = mainlineVersion;
   boot4-tcc = boot4-tcc;
-  inherit bootstrapSrc bootstrapVersion;
+  inherit bootstrapSrc bootstrapVersion tccdefs;
 }

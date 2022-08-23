@@ -1,6 +1,7 @@
-{ lib }:
+{ lib, config, stdenv }:
 let
-  localSystem = { system = "i686-linux"; };
+  # localSystem = { system = "i686-linux"; };
+  localSystem = stdenv.hostPlatform;
   system = localSystem.system;
   seeds = import ./seeds.nix;
   fetchurl = import ../../../build-support/fetchurl/boot.nix { inherit system; };
@@ -26,14 +27,14 @@ rec {
       (builtins.toFile "run-kaem-script.kaem" ''
         set -ex
         PATH=''${BUILD_INPUTS_PATH}:
-        LD_LIBRARY_PATH=''${BUILD_INPUTS_LIB}:
+        LIBRARY_PATH=''${BUILD_INPUTS_LIB}:
         unset BUILD_INPUTS_PATH
         unset BUILD_INPUTS_LIB
         exec kaem --verbose --strict --file ''${script}
       '')
       "--"
     ];
-    BUILD_INPUTS_PATH = lib.makeBinPath ([ mescc-tools ] ++ buildInputs);
+    BUILD_INPUTS_PATH = lib.makeBinPath (buildInputs ++ [ mescc-tools ]);
     BUILD_INPUTS_LIB = lib.makeLibraryPath buildInputs;
   });
 
@@ -100,5 +101,21 @@ rec {
 
   gnumake = import ./gnumake { inherit fetchurl runKaem tcc; };
 
-  cproc = import ./cproc { inherit fetchurl runKaem tcc gnumake; };
+  sed = import ./sed { inherit fetchurl runKaem tcc gnumake; };
+
+  patch = import ./patch { inherit fetchurl runKaem tcc gnumake sed; };
+
+  coreutils = import ./coreutils { inherit fetchurl runKaem tcc gnumake sed patch; };
+
+  bash = import ./bash { inherit fetchurl runKaem tcc gnumake coreutils patch; };
+
+  binutils = import ./binutils { inherit fetchurl stdenvNoCC tcc; };
+
+  musl0 = import ./musl { inherit fetchurl runKaem tcc gnumake sed coreutils; };
+
+  musl-tcc0 = import ./tcc/musl.nix { inherit runKaem tcc; musl = musl0; };
+
+  musl = import ./musl { inherit fetchurl runKaem gnumake sed coreutils; tcc = musl-tcc0; };
+
+  musl-tcc = import ./tcc/musl.nix { inherit runKaem musl; tcc = musl-tcc0; };
 }

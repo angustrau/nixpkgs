@@ -1,0 +1,5 @@
+{
+  "https://cdn.skypack.dev/-/object-assign@v4.1.1-LbCnB3r2y2yFmhmiCfPn/dist=es2019,mode=imports/optimized/object-assign.js": "d75198c87b0640a682645d8cfdbaa67b5dd4b71aec625582e65d05e87caba008",
+  "https://cdn.skypack.dev/-/react@v17.0.1-yH0aYV1FOvoIPeKBbHxg/dist=es2019,mode=imports/optimized/react.js": "d67a56e0f98f9bd5b9b5ed0408ea913b2d3e14265979e457d905a795ac5f4b4b",
+  "https://cdn.skypack.dev/react": "abb60c0ca31aab69e8b26906186e66d5e384cc9cf930f6c1b023d4ad2fccd9bd"
+}

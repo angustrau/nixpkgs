@@ -5551,6 +5551,10 @@ with pkgs;
       Security CoreServices Metal Foundation QuartzCore;
   };
 
+  deno2nix = callPackage ../development/tools/deno2nix {};
+
+  deployctl = callPackage ../development/web/deployctl {};
+
   detox = callPackage ../tools/misc/detox { };
 
   devilspie2 = callPackage ../applications/misc/devilspie2 {

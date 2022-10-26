@@ -1,0 +1,7 @@
+{
+  "tasks": {
+    "deno2nix": "deno run -A deno2nix.ts > lock.nix",
+    "cache": "rm -rf cache && deno run --allow-write --allow-read --allow-env --allow-net ./createCache.ts"
+  },
+  "importMap": "./vendor/import_map.json"
+}

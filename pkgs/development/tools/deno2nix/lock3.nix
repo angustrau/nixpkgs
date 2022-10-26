@@ -1,0 +1,7 @@
+deps:
+{
+  redirects = {
+    "https://deno.land/x/deno_cache/mod.ts" = "https://deno.land/x/deno_cache@0.4.1/mod.ts";
+    "https://deno.land/x/deno_graph/mod.ts" = "https://deno.land/x/deno_graph@0.33.0/mod.ts";
+  };
+}

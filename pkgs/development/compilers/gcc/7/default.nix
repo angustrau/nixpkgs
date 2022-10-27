@@ -67,6 +67,13 @@ let majorVersion = "7";
         sha256 = "0mrvxsdwip2p3l17dscpc1x8vhdsciqw1z5q9i6p5g9yg1cqnmgs";
       })
       ++ optional langFortran ../gfortran-driving.patch
+      # Ports Atmel patches to newer GCC version
+      # With additional fix from PR 82: Enable 'avrtiny' and 'avrxmega7' families by fixing patch format
+      # https://github.com/arduino/toolchain-avr/pull/82
+      ++ optional (targetPlatform.libc == "avrlibc") (fetchpatch {
+        url = "https://github.com/arduino/toolchain-avr/raw/3b2edec61ef7438df63c3e2a12a83997e304abfb/avr-gcc-patches/atmel-patches-gcc.7.3.0-arduino2.patch";
+        hash = "sha256-RkQ0qippMcax7htpT2M0G3oLAu8wXwQc3PVVw8tmSoc=";
+      })
       ++ optional (targetPlatform.libc == "musl" && targetPlatform.isPower) ../ppc-musl.patch
       ++ optional (targetPlatform.libc == "musl" && targetPlatform.isx86_32) (fetchpatch {
         url = "https://git.alpinelinux.org/aports/plain/main/gcc/gcc-6.1-musl-libssp.patch?id=5e4b96e23871ee28ef593b439f8c07ca7c7eb5bb";

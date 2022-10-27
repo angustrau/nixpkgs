@@ -77,6 +77,11 @@ let majorVersion = "6";
         url = "https://git.alpinelinux.org/aports/plain/main/gcc/gcc-6.1-musl-libssp.patch?id=5e4b96e23871ee28ef593b439f8c07ca7c7eb5bb";
         sha256 = "1jf1ciz4gr49lwyh8knfhw6l5gvfkwzjy90m7qiwkcbsf4a3fqn2";
       })
+      # Ports Atmel patches to newer GCC version
+      ++ optional (targetPlatform.libc == "avrlibc") (fetchpatch {
+        url = "https://github.com/arduino/toolchain-avr/raw/7.3.0-atmel3.6.1-arduino7/avr-gcc-patches/atmel-patches-gcc.6.5.0-arduino1.patch";
+        sha256 = "sha256-0wuHy1TX64xLeB97HN2KNFGXnnXOmDRoBfFgzTuHgPE=";
+      })
 
       ++ [ ../libsanitizer-no-cyclades-9.patch ];
 

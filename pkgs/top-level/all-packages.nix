@@ -4628,6 +4628,8 @@ with pkgs;
 
   ghidra = callPackage ../tools/security/ghidra/build.nix { };
 
+  ghidra-extensions = recurseIntoAttrs (callPackage ../tools/security/ghidra/extensions.nix { });
+
   ghidra-bin = callPackage ../tools/security/ghidra { };
 
   gh2md = callPackage ../tools/backup/gh2md { };

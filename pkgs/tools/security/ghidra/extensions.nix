@@ -6,6 +6,8 @@ lib.makeScope pkgs.newScope (self: with self; {
 
   ghostrings = callPackage ./extensions/ghostrings { };
 
+  gnudisassembler = callPackage ./extensions/gnudisassembler { };
+
 } // {
   inherit (callPackage ./build-extension.nix { }) buildGhidraExtension buildGhidraScripts;
 })

@@ -8,6 +8,8 @@ lib.makeScope pkgs.newScope (self: with self; {
 
   gnudisassembler = callPackage ./extensions/gnudisassembler { };
 
+  sleighdevtools = callPackage ./extensions/sleighdevtools { };
+
 } // {
   inherit (callPackage ./build-extension.nix { }) buildGhidraExtension buildGhidraScripts;
 })

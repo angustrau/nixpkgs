@@ -8,6 +8,8 @@ lib.makeScope pkgs.newScope (self: with self; {
 
   gnudisassembler = callPackage ./extensions/gnudisassembler { };
 
+  machinelearning = callPackage ./extensions/machinelearning { };
+
   sleighdevtools = callPackage ./extensions/sleighdevtools { };
 
 } // {

@@ -23534,6 +23534,8 @@ with pkgs;
     boost = boost.override { enablePython = true; python = python38; };
   };
 
+  valijson = callPackage ../development/libraries/valijson { };
+
   vamp-plugin-sdk = callPackage ../development/libraries/audio/vamp-plugin-sdk { };
 
   vc = callPackage ../development/libraries/vc { };

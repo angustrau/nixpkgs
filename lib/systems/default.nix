@@ -51,6 +51,7 @@ rec {
         else if final.isNetBSD              then "nblibc"
         else if final.isAvr                 then "avrlibc"
         else if final.isGhcjs               then null
+        else if final.isSerenity            then "serenity"
         else if final.isNone                then "newlib"
         # TODO(@Ericson2314) think more about other operating systems
         else                                     "native/impure";
@@ -99,6 +100,7 @@ rec {
           wasi = "Wasi";
           redox = "Redox";
           genode = "Genode";
+          serenity = "SerenityOS";
         }.${final.parsed.kernel.name} or null;
 
          # uname -m

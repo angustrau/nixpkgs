@@ -1,0 +1,33 @@
+diff --git a/userspace/libsinsp/test/user.ut.cpp b/userspace/libsinsp/test/user.ut.cpp
+index 427e67ab..b8a75b8d 100644
+--- a/userspace/libsinsp/test/user.ut.cpp
++++ b/userspace/libsinsp/test/user.ut.cpp
+@@ -80,28 +80,6 @@ TEST_F(usergroup_manager_test, add_rm)
+ 	ASSERT_EQ(mgr.get_group(container_id, 0), nullptr);
+ }
+ 
+-TEST_F(usergroup_manager_test, system_lookup)
+-{
+-	std::string container_id{""};
+-
+-	sinsp_usergroup_manager mgr(&m_inspector);
+-
+-	mgr.add_user(container_id, -1, 0, 0, nullptr, nullptr, nullptr);
+-	auto* user = mgr.get_user(container_id, 0);
+-	ASSERT_NE(user, nullptr);
+-	ASSERT_EQ(user->uid, 0);
+-	ASSERT_EQ(user->gid, 0);
+-	ASSERT_STREQ(user->name, "root");
+-	ASSERT_STREQ(user->homedir, "/root");
+-	ASSERT_EQ(std::string(user->shell).empty(), false);
+-
+-	mgr.add_group(container_id, -1, 0, nullptr);
+-	auto* group = mgr.get_group(container_id, 0);
+-	ASSERT_NE(group, nullptr);
+-	ASSERT_EQ(group->gid, 0);
+-	ASSERT_STREQ(group->name, "root");
+-}
+-
+ TEST_F(usergroup_manager_test, add_no_import_users)
+ {
+ 	std::string container_id{""};

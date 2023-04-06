@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Emily Trau <me@angus.ws>
+Date: Thu, 6 Apr 2023 15:39:00 +1000
+Subject: [PATCH] Add build configuration info for serenity
+
+---
+ util/mkdef.pl | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/util/mkdef.pl b/util/mkdef.pl
+index 3d86b0e..2beff45 100755
+--- a/util/mkdef.pl
++++ b/util/mkdef.pl
+@@ -114,6 +114,7 @@ my %OS_data = (
+     "solaris-gcc" => 'solaris', # alias
+     linux       => 'solaris',   # alias
+     "bsd-gcc"   => 'solaris',   # alias
++    "serenity"  => 'solaris',   # alias
+     aix         => { writer     => \&writer_aix,
+                      sort       => sorter_unix(),
+                      platforms  => { UNIX                       => 1 } },
+-- 
+2.34.1

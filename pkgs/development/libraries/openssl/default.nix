@@ -111,6 +111,7 @@ let
           else "./Configure linux-generic${toString stdenv.hostPlatform.parsed.cpu.bits}"
         else if stdenv.hostPlatform.isiOS
           then "./Configure ios${toString stdenv.hostPlatform.parsed.cpu.bits}-cross"
+        else if stdenv.hostPlatform.isSerenity then "./Configure serenity-generic"
         else
           throw "Not sure what configuration to use for ${stdenv.hostPlatform.config}"
       );
@@ -230,30 +231,42 @@ in {
   openssl_1_1 = common {
     version = "1.1.1t";
     sha256 = "sha256-je6bJL2x3L8MPR6bAvuPa/IhZegH9Fret8lndTaFnTs=";
-    patches = [
-      ./1.1/nix-ssl-cert-file.patch
+    patches =
+      [
+        ./1.1/nix-ssl-cert-file.patch
 
-      (if stdenv.hostPlatform.isDarwin
-       then ./use-etc-ssl-certs-darwin.patch
-       else ./use-etc-ssl-certs.patch)
-    ];
+        (if stdenv.hostPlatform.isDarwin
+        then ./use-etc-ssl-certs-darwin.patch
+        else ./use-etc-ssl-certs.patch)
+      ]
+      # Add support for serenity
+      # https://github.com/SerenityOS/serenity/tree/9ca21ba1d55a5d02c1c92154cd682adc695d2c81/Ports/openssl/patches
+      ++ lib.optional stdenv.hostPlatform.isSerenity ./support-serenity.patch;
     withDocs = true;
   };
 
   openssl_3 = common {
     version = "3.0.8";
     sha256 = "sha256-bBPSvzj98x6sPOKjRwc2c/XWMmM5jx9p0N9KQSU+Sz4=";
-    patches = [
-      ./3.0/nix-ssl-cert-file.patch
+    patches =
+      [
+        ./3.0/nix-ssl-cert-file.patch
 
-      # openssl will only compile in KTLS if the current kernel supports it.
-      # This patch disables build-time detection.
-      ./3.0/openssl-disable-kernel-detection.patch
+        # openssl will only compile in KTLS if the current kernel supports it.
+        # This patch disables build-time detection.
+        ./3.0/openssl-disable-kernel-detection.patch
 
-      (if stdenv.hostPlatform.isDarwin
-       then ./use-etc-ssl-certs-darwin.patch
-       else ./use-etc-ssl-certs.patch)
-    ];
+        (if stdenv.hostPlatform.isDarwin
+        then ./use-etc-ssl-certs-darwin.patch
+        else ./use-etc-ssl-certs.patch)
+
+      ]
+      # Add support for serenity
+      # https://github.com/SerenityOS/serenity/tree/9ca21ba1d55a5d02c1c92154cd682adc695d2c81/Ports/openssl/patches
+      ++ lib.optionals stdenv.hostPlatform.isSerenity ([
+        ./support-serenity.patch
+        ./3.0/serenity-os-data.patch
+      ]);
 
     withDocs = true;
 

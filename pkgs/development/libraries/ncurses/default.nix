@@ -38,6 +38,9 @@ stdenv.mkDerivation (finalAttrs: {
     ++ lib.optionals stdenv.hostPlatform.isWindows [
       "--enable-sp-funcs"
       "--enable-term-driver"
+  ] ++ lib.optionals stdenv.hostPlatform.isSerenity [
+      "--enable-sigwinch"
+      "--enable-term-driver"
   ] ++ lib.optionals (stdenv.hostPlatform.isUnix && stdenv.hostPlatform.isStatic) [
       # For static binaries, the point is to have a standalone binary with
       # minimum dependencies. So here we make sure that binaries using this
@@ -47,6 +50,7 @@ stdenv.mkDerivation (finalAttrs: {
         "/lib/terminfo" # Debian
         "/usr/share/terminfo" # upstream default, probably all FHS-based distros
         "/run/current-system/sw/share/terminfo" # NixOS
+        "/usr/local/share/terminfo" # SerenityOS
       ]}"
   ];
 
@@ -82,6 +86,8 @@ stdenv.mkDerivation (finalAttrs: {
            -e '/CPPFLAGS="$CPPFLAGS/s/ -D_XOPEN_SOURCE_EXTENDED//' \
         configure
     CFLAGS=-D_XOPEN_SOURCE_EXTENDED
+  '' + lib.optionalString stdenv.isSerenity ''
+    substituteInPlace configure --replace '(linux*|gnu*|k*bsd*-gnu)' '(linux*|gnu*|k*bsd*-gnu|*serenity*)'
   '';
 
   enableParallelBuilding = true;

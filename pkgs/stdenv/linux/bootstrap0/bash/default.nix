@@ -1,45 +1,40 @@
-{ fetchurl, runKaem, tcc, gnumake, coreutils, patch }:
+{ fetchurl, runAsh, musl-tcc, gnumake, patch }:
 let
-  version = "2.05b";
+  version = "5.1.8";
   src = fetchurl {
-    url = "https://mirrors.kernel.org/gnu/bash/bash-${version}.tar.gz";
-    sha256 = "1r1z2qdw3rz668nxrzwa14vk2zcn00hw7mpjn384picck49d80xs";
+    url = "mirror://gnu/bash/bash-${version}.tar.gz";
+    sha256 = "1gnn2d0j2cnx1xg80nw12c87m68wa4cjs95xjw5817x2n6dmryqc";
   };
 in
-runKaem {
+runAsh {
   name = "bash-${version}";
-  buildInputs = [ tcc gnumake coreutils patch ];
+  buildInputs = [ musl-tcc gnumake patch ];
   scriptText = ''
-    ungz --file ${src} --output bash.tar
-    untar --file bash.tar
-    cd bash-${version}
+    tar --strip-components=1 -xf ${src}
 
-    cp --preserve=mode ${./mk/main.mk} Makefile
-    cp --preserve=mode ${./mk/builtins.mk} builtins/Makefile
-    cp --preserve=mode ${./mk/common.mk} common.mk
-
-    # Create various .h files
-    touch config.h
-    touch include/version.h
-    touch include/pipesize.h
-
-    # Patch
-    patch -Np0 -i ${./patches/mes-libc.patch}
-    patch -Np0 -i ${./patches/tinycc.patch}
-    patch -Np0 -i ${./patches/missing-defines.patch}
-    patch -Np0 -i ${./patches/locale.patch}
+    patch -Np0 -i ${./patches/extern.patch}
     patch -Np0 -i ${./patches/dev-tty.patch}
 
-    # Compile
-    cat Makefile
-    make mkbuiltins
-    cd builtins
-    make libbuiltins.a
-    cd ..
-    make
+    export CC=tcc
+    export LD=tcc
+    export AR="tcc -ar"
+    export CFLAGS="-g -static -DNON_INTERACTIVE_LOGIN_SHELLS -DSYS_BASHRC='\"/etc/bashrc\"' -DSYS_BASH_LOGOUT='\"/etc/bash_logout\"' -DDEFAULT_PATH_VALUE='\"/no-such-path\"' -DSTANDARD_UTILS_PATH='\"/no-such-path\"'"
+    export bash_cv_job_control_missing=nomissing
+    export bash_cv_sys_named_pipes=nomissing
+    export bash_cv_getcwd_malloc=yes
+    export bash_cv_pgrp_pipe=yes
+    export bash_cv_dev_stdin=present
+    export bash_cv_dev_fd=standard
+    export ac_cv_func_alloca_works=yes
 
-    # Install
-    install -D bash ''${out}/bin/bash
-    ln -s ''${out}/bin/bash ''${out}/bin/sh
+    # export ac_cv_func_gettimeofday=yes
+
+    ash ./configure --without-bash-malloc --disable-nls --prefix=''$out --build=i686-unknown-linux-musl
+    make
+    make install
+
+    rm -rf ''$out/share ''$out/bin/bashbug
+    ln -s ''$out/bin/bash ''$out/bin/sh
+    cp config.log ''$out/
   '';
 }

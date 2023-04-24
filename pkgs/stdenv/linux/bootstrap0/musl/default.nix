@@ -24,56 +24,61 @@ let
       catm ''${out} ${src}/arch/i386/bits/syscall.h.in syscall.h
     '';
   };
+
+  musl = runKaem {
+    name = "musl-${version}";
+    buildInputs = [ tcc gnumake sed coreutils ];
+    scriptText = ''
+      cp -r ${src} src
+      chmod -R a+rw ./src
+      cd src/
+
+      catm config.mak
+
+      replace --file src/signal/i386/sigsetjmp.s --output src/signal/i386/sigsetjmp.s --match-on "jecxz 1f" --replace-with "cmp %ecx,0\nje 1f"
+      rm -rf src/complex src/math/i386/ src/math/sqrtl.c
+      # Conflicts with TCC's builtin alloca
+      replace --file include/alloca.h --output include/alloca.h --match-on "#define alloca __builtin_alloca" --replace-with "/**/"
+
+      mkdir -p obj/include/bits/ lib/
+      cp --preserve="mode" ${alltypes_h} obj/include/bits/alltypes.h
+      cp --preserve="mode" ${syscall_h} obj/include/bits/syscall.h
+
+      make \
+        prefix=''${out} \
+        libdir=''${out}/lib \
+        includedir=''${out}/include \
+        CC=tcc \
+        ARCH=i386 \
+        CROSS_COMPILE= \
+        AR="tcc -ar" \
+        RANLIB=true \
+        CFLAGS="-DSYSCALL_NO_TLS -static" \
+        SHARED_LIBS= \
+        TOOL_LIBS= \
+        EMPTY_LIBS= \
+        ALL_TOOLS=
+
+      chmod -R a+r .
+      make \
+        prefix=''${out} \
+        libdir=''${out}/lib \
+        includedir=''${out}/include \
+        CC=tcc \
+        ARCH=i386 \
+        CROSS_COMPILE= \
+        AR="tcc -ar" \
+        RANLIB=true \
+        CFLAGS="-DSYSCALL_NO_TLS -static" \
+        SHARED_LIBS= \
+        TOOL_LIBS= \
+        EMPTY_LIBS= \
+        ALL_TOOLS= \
+        install
+    '';
+    # Disable TOOL_LIBS, fails to build without /bin/sh
+  };
 in
-runKaem {
-  name = "musl-${version}";
-  buildInputs = [ tcc gnumake sed coreutils ];
-  scriptText = ''
-    cp -r ${src} src
-    chmod -R a+rw ./src
-    cd src/
-
-    catm config.mak
-
-    replace --file src/signal/i386/sigsetjmp.s --output src/signal/i386/sigsetjmp.s --match-on "jecxz 1f" --replace-with "cmp %ecx,0\nje 1f"
-    replace --file src/include/features.h --output src/include/features.h --match-on "__weak__, " --replace-with ""
-    rm -rf src/complex src/math/i386/ src/math/sqrtl.c
-
-    mkdir -p obj/include/bits/ lib/
-    cp --preserve="mode" ${alltypes_h} obj/include/bits/alltypes.h
-    cp --preserve="mode" ${syscall_h} obj/include/bits/syscall.h
-
-    make \
-      prefix=''${out} \
-      libdir=''${out}/lib \
-      includedir=''${out}/include \
-      CC=tcc \
-      ARCH=i386 \
-      CROSS_COMPILE= \
-      AR="tcc -ar" \
-      RANLIB=true \
-      CFLAGS="-DSYSCALL_NO_TLS -static" \
-      SHARED_LIBS= \
-      TOOL_LIBS= \
-      EMPTY_LIBS= \
-      ALL_TOOLS=
-
-    chmod -R a+r .
-    make \
-      prefix=''${out} \
-      libdir=''${out}/lib \
-      includedir=''${out}/include \
-      CC=tcc \
-      ARCH=i386 \
-      CROSS_COMPILE= \
-      AR="tcc -ar" \
-      RANLIB=true \
-      CFLAGS="-DSYSCALL_NO_TLS -static" \
-      SHARED_LIBS= \
-      TOOL_LIBS= \
-      EMPTY_LIBS= \
-      ALL_TOOLS= \
-      install
-  '';
-  # Disable TOOL_LIBS, fails to build without /bin/sh
+musl // {
+  inherit alltypes_h syscall_h;
 }

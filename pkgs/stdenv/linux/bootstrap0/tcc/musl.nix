@@ -8,8 +8,8 @@ let
       mkdir -p ''${out}/bin ''${out}/lib
       catm config.h
 
-      ${tcc}/bin/tcc -c -D HAVE_CONFIG_H=1 -D TCC_TARGET_I386=1 -D TCC_MUSL=1 ${src}/lib/libtcc1.c
-      ${tcc}/bin/tcc -ar cr "''${out}/lib/libtcc1.a" libtcc1.o
+      ${tcc}/bin/tcc -c -D HAVE_CONFIG_H=1 -D TCC_TARGET_I386=1 -D TCC_MUSL=1 ${src}/lib/libtcc1.c ${src}/lib/alloca.S
+      ${tcc}/bin/tcc -ar cr "''${out}/lib/libtcc1.a" libtcc1.o alloca.o
 
       ${tcc}/bin/tcc \
         -o ''${out}/bin/tcc \
@@ -29,15 +29,13 @@ let
         -D CONFIG_TCC_LIBPATHS=\"${musl}/lib:''${out}/lib\" \
         -D CONFIG_TCC_SYSINCLUDEPATHS=\"${musl}/include:${src}/include\" \
         -D TCC_LIBGCC=\"${musl}/lib/libc.a\" \
-        -D CONFIG_TCC_LIBTCC1_MES=0 \
+        -D TCC_LIBTCC1=\"libtcc1.a\" \
         -D CONFIG_TCCBOOT=1 \
         -D CONFIG_TCC_STATIC=1 \
         -D CONFIG_USE_LIBGCC=1 \
-        -D TCC_MES_LIBC=1 \
         -D TCC_MUSL=1 \
         -D TCC_VERSION=\"${version}\" \
         -D ONE_SOURCE=1 \
-        -D __intptr_t_defined=1\
         -D CONFIG_TCC_PREDEFS=1 \
         -I ${tccdefs} \
         -L ${musl}/lib \

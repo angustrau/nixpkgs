@@ -26843,6 +26843,8 @@ with pkgs;
 
   metastore = callPackage ../os-specific/linux/metastore { };
 
+  minimal-bootstrap = recurseIntoAttrs (callPackage ../os-specific/linux/minimal-bootstrap { });
+
   mingetty = callPackage ../os-specific/linux/mingetty { };
 
   miraclecast = callPackage ../os-specific/linux/miraclecast { };
@@ -27359,8 +27361,6 @@ with pkgs;
   };
 
   trust-dns = callPackage ../servers/dns/trust-dns { };
-
-  trusting-trust = recurseIntoAttrs (callPackage ../os-specific/linux/trusting-trust { });
 
   trustymail = callPackage ../tools/security/trustymail { };
 

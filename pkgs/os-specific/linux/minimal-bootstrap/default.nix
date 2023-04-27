@@ -16,4 +16,6 @@ lib.makeScope newScope (self: with self; {
   mes = callPackage ./mes { };
 
   tinycc-with-mes-libc = callPackage ./tinycc/default.nix { };
+
+  dash = callPackage ./dash { tinycc = tinycc-with-mes-libc; };
 })

@@ -5,7 +5,7 @@
 }:
 let
   pname = "gnupatch";
-  # >2.5.9 uses features not implemented in mes-libc (eg. quotearg.h)
+  # 2.6.x and later use features not implemented in mes-libc (eg. quotearg.h)
   version = "2.5.9";
 
   src = fetchurl {
@@ -13,10 +13,30 @@ let
     sha256 = "12nv7jx3gxfp50y11nxzlnmqqrpicjggw6pcsq0wyavkkm3cddgc";
   };
 
+  # Thanks to the live-bootstrap project!
+  # https://github.com/fosslinux/live-bootstrap/blob/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/patch-2.5.9/mk/main.mk
   CFLAGS = [
     "-I."
-    "-DHAVE_CONFIG_H"
-    "-Ded_PROGRAM=\\\"ed\\\""
+    "-DHAVE_DECL_GETENV"
+    "-DHAVE_DECL_MALLOC"
+    "-DHAVE_DIRENT_H"
+    "-DHAVE_LIMITS_H"
+    "-DHAVE_GETEUID"
+    "-DHAVE_MKTEMP"
+    "-DPACKAGE_BUGREPORT="
+    "-Ded_PROGRAM=\\\"/nullop\\\""
+    "-Dmbstate_t=int" # When HAVE_MBRTOWC is not enabled uses of mbstate_t are always a no-op
+    "-DRETSIGTYPE=int"
+    "-DHAVE_MKDIR"
+    "-DHAVE_RMDIR"
+    "-DHAVE_FCNTL_H"
+    "-DPACKAGE_NAME=\\\"${pname}\\\""
+    "-DPACKAGE_VERSION=\\\"${version}\\\""
+    "-DHAVE_MALLOC"
+    "-DHAVE_REALLOC"
+    "-DSTDC_HEADERS"
+    "-DHAVE_STRING_H"
+    "-DHAVE_STDLIB_H"
   ];
 
   # Maintenance note: List of sources from Makefile.in
@@ -29,7 +49,7 @@ let
     + "quote.c quotearg.c quotesys.c "
     + "util.c version.c xmalloc.c");
   sources = SRCS ++ [
-    # mes-libc doesn't implement `error`
+    # mes-libc doesn't implement `error()`
     "error.c"
   ];
 
@@ -46,19 +66,20 @@ runCommand "${pname}-${version}" {
     license = licenses.gpl3Plus;
     maintainers = with maintainers; [ emilytrau ];
     mainProgram = "patch";
-    platforms = [ "i686-linux" ];
+    platforms = platforms.unix;
   };
 } ''
-  # Unpack source
+  # Unpack
   ungz --file ${src} --output patch.tar
   untar --file patch.tar
   rm patch.tar
   build=''${NIX_BUILD_TOP}/patch-${version}
   cd ''${build}
 
-  cp ${./config.h} config.h
+  # Configure
+  catm config.h
 
-  # Compile
+  # Build
   alias CC="tcc ${lib.concatStringsSep " " CFLAGS}"
   ${lib.concatLines (map (f: "CC -c ${f}") sources)}
 

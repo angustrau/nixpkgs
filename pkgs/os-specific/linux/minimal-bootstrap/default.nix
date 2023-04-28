@@ -34,4 +34,9 @@ lib.makeScope newScope (self: with self; {
   gnutar = callPackage ./gnutar { tinycc = tinycc-with-mes-libc; };
 
   gnugrep = callPackage ./gnugrep { tinycc = tinycc-with-mes-libc; };
+
+  flex = callPackage ./flex {
+    bash = bash_2;
+    tinycc = tinycc-with-mes-libc;
+  };
 })

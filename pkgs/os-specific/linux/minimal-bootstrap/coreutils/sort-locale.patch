@@ -1,0 +1,40 @@
+--- lib/memcoll.c
++++ lib/memcoll.c
+@@ -47,7 +47,7 @@ memcoll (char *s1, size_t s1len, char *s2, size_t s2len)
+   s1[s1len++] = '\0';
+   s2[s2len++] = '\0';
+ 
+-  while (! (errno = 0, (diff = strcoll (s1, s2)) || errno))
++  while (! (errno = 0, (diff = strcmp (s1, s2)) || errno))
+     {
+       /* strcoll found no difference, but perhaps it was fooled by NUL
+ 	 characters in the data.  Work around this problem by advancing
+
+--- src/sort.c
++++ src/sort.c
+@@ -1367,7 +1367,7 @@ keycompare (const struct line *a, const struct line *b)
+ 	diff = getmonth (texta, lena) - getmonth (textb, lenb);
+       /* Sorting like this may become slow, so in a simple locale the user
+          can select a faster sort that is similar to ascii sort  */
+-      else if (HAVE_SETLOCALE && hard_LC_COLLATE)
++      else if (HAVE_SETLOCALE && 0)
+ 	{
+ 	  if (ignore || translate)
+ 	    {
+@@ -1524,7 +1524,7 @@ compare (register const struct line *a, register const struct line *b)
+     diff = - NONZERO (blen);
+   else if (blen == 0)
+     diff = NONZERO (alen);
+-  else if (HAVE_SETLOCALE && hard_LC_COLLATE)
++  else if (HAVE_SETLOCALE && 0)
+     diff = xmemcoll (a->text, alen, b->text, blen);
+   else if (! (diff = memcmp (a->text, b->text, min (alen, blen))))
+     diff = alen < blen ? -1 : alen != blen;
+@@ -2180,7 +2180,6 @@ main (int argc, char **argv)
+ 
+   atexit (cleanup);
+ 
+-  hard_LC_COLLATE = hard_locale (LC_COLLATE);
+ #if HAVE_NL_LANGINFO
+   hard_LC_TIME = hard_locale (LC_TIME);
+ #endif

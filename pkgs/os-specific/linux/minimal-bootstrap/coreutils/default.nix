@@ -19,11 +19,6 @@ let
   # See https://github.com/fosslinux/live-bootstrap/blob/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/coreutils-5.0/coreutils-5.0.kaem
   liveBootstrap = "https://github.com/fosslinux/live-bootstrap/raw/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/coreutils-5.0";
 
-  makefile = fetchurl {
-    url = "${liveBootstrap}/mk/main.mk";
-    sha256 = "1b2gx044h7x03q9084z7zh8i67w2z5fpvk28lsi858kw528rlyjc";
-  };
-
   patches = [
     # modechange.h uses functions defined in sys/stat.h, so we need to move it to
     # after sys/stat.h include.
@@ -53,6 +48,10 @@ let
       url = "${liveBootstrap}/patches/touch-dereference.patch";
       sha256 = "0wky5r3k028xwyf6g6ycwqxzc7cscgmbymncjg948vv4qxsxlfda";
     })
+    # strcoll() does not exist in mes libc, change it to strcmp.
+    ./expr-strcmp.patch
+    # mes libc does not support locale
+    ./sort-locale.patch
   ];
 in
 runCommand "${pname}-${version}" {
@@ -92,12 +91,12 @@ runCommand "${pname}-${version}" {
   rm src/dircolors.h
 
   # Build
-  make -f ${makefile} PREFIX=''${out}
+  make -f ${./Makefile} PREFIX=''${out}
 
   # Check
   ./src/echo "Hello coreutils!"
 
   # Install
   ./src/mkdir -p ''${out}/bin
-  make -f ${makefile} install PREFIX=''${out}
+  make -f ${./Makefile} install PREFIX=''${out}
 ''

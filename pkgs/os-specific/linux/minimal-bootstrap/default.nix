@@ -30,4 +30,6 @@ lib.makeScope newScope (self: with self; {
   coreutils = callPackage ./coreutils { tinycc = tinycc-with-mes-libc; };
 
   heirloom-devtools = callPackage ./heirloom-devtools { tinycc = tinycc-with-mes-libc; };
+
+  bash_2 = callPackage ./bash/2.nix { tinycc = tinycc-with-mes-libc; };
 })

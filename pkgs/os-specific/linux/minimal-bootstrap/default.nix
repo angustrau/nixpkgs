@@ -28,4 +28,6 @@ lib.makeScope newScope (self: with self; {
   gzip = callPackage ./gzip { tinycc = tinycc-with-mes-libc; };
 
   coreutils = callPackage ./coreutils { tinycc = tinycc-with-mes-libc; };
+
+  heirloom-devtools = callPackage ./heirloom-devtools { tinycc = tinycc-with-mes-libc; };
 })

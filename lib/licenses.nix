@@ -209,6 +209,11 @@ in mkLicense lset) ({
     url = "https://opensource.org/licenses/CAL-1.0";
   };
 
+  caldera = {
+    spdxId = "Caldera";
+    fullName = "Caldera License";
+  };
+
   capec = {
     fullName = "Common Attack Pattern Enumeration and Classification";
     url = "https://capec.mitre.org/about/termsofuse.html";

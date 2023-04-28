@@ -81,6 +81,7 @@ runCommand "${pname}-${version}" {
 } ''
   # Unpack
   cp ${src} bash.tar.gz
+  # We need gzip as ungz is not currently compliant enough
   gunzip bash.tar.gz
   untar --file bash.tar
   rm bash.tar

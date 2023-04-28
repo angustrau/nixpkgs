@@ -1,5 +1,5 @@
 # Based on https://github.com/fosslinux/live-bootstrap/blob/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/coreutils-5.0/mk/main.mk
-# - Added "expr" and "sort" builtins
+# - Add "expr" and "sort" builtins, required by some ./configure scripts
 
 # SPDX-FileCopyrightText: 2021 Andrius Štikonas <andrius@stikonas.eu>
 # SPDX-FileCopyrightText: 2021 Paul Dersey <pdersey@gmail.com>

@@ -70,10 +70,10 @@ runCommand "${pname}-${version}" {
   };
 } ''
   # Unpack
-  ungz --file ${src} --output ${pname}.tar
-  untar --file ${pname}.tar
-  rm ${pname}.tar
-  build=''${NIX_BUILD_TOP}/${pname}-${version}
+  ungz --file ${src} --output coreutils.tar
+  untar --file coreutils.tar
+  rm coreutils.tar
+  build=''${NIX_BUILD_TOP}/coreutils-${version}
   cd ''${build}
 
   # Patch
@@ -94,6 +94,6 @@ runCommand "${pname}-${version}" {
   ./src/echo "Hello coreutils!"
 
   # Install
-  mkdir -p ''${out}/bin
+  ./src/mkdir -p ''${out}/bin
   make -f ${makefile} install PREFIX=''${out}
 ''

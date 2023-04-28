@@ -25,5 +25,7 @@ lib.makeScope newScope (self: with self; {
 
   gnused = callPackage ./gnused { tinycc = tinycc-with-mes-libc; };
 
+  gzip = callPackage ./gzip { tinycc = tinycc-with-mes-libc; };
+
   coreutils = callPackage ./coreutils { tinycc = tinycc-with-mes-libc; };
 })

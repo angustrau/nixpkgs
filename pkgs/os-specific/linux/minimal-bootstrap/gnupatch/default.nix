@@ -61,7 +61,7 @@ runCommand "${pname}-${version}" {
   nativeBuildInputs = [ tinycc ];
 
   meta = with lib; {
-    description = "A program to apply differences to files";
+    description = "GNU Patch, a program to apply differences to files";
     homepage = "https://www.gnu.org/software/patch";
     license = licenses.gpl3Plus;
     maintainers = with maintainers; [ emilytrau ];

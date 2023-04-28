@@ -29,14 +29,14 @@ lib.makeScope newScope (self: with self; {
 
   heirloom-devtools = callPackage ./heirloom-devtools { tinycc = tinycc-with-mes-libc; };
 
-  bash_2 = callPackage ./bash/2.nix { tinycc = tinycc-with-mes-libc; };
+  bash_2_05 = callPackage ./bash/2.nix { tinycc = tinycc-with-mes-libc; };
 
   gnutar = callPackage ./gnutar { tinycc = tinycc-with-mes-libc; };
 
   gnugrep = callPackage ./gnugrep { tinycc = tinycc-with-mes-libc; };
 
   flex = callPackage ./flex {
-    bash = bash_2;
+    bash = bash_2_05;
     tinycc = tinycc-with-mes-libc;
   };
 })

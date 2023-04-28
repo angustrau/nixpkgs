@@ -10,10 +10,10 @@
 }:
 let
   pname = "bash";
-  version = "2.05b";
+  version = "2.05";
 
   src = fetchurl {
-    url = "mirror://gnu/bash/bash-${version}.tar.gz";
+    url = "mirror://gnu/bash/bash-2.05b.tar.gz";
     sha256 = "1r1z2qdw3rz668nxrzwa14vk2zcn00hw7mpjn384picck49d80xs";
   };
 
@@ -91,7 +91,7 @@ runCommand "${pname}-${version}" {
   gunzip bash.tar.gz
   untar --file bash.tar
   rm bash.tar
-  build=''${NIX_BUILD_TOP}/bash-${version}
+  build=''${NIX_BUILD_TOP}/bash-2.05b
   cd ''${build}
 
   # Patch

@@ -19,6 +19,8 @@ let
     url = "https://github.com/fosslinux/live-bootstrap/raw/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/gzip-1.2.4/mk/main.mk";
     sha256 = "06c9xl13ym41i2q7rb370kc7affwxbbm6lyqpgbpj6q83bv4dhkq";
   };
+
+  # discard atime and mtime from stat() and lstat()
   stat_override_c = fetchurl {
     url = "https://github.com/fosslinux/live-bootstrap/raw/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/gzip-1.2.4/files/stat_override.c";
     sha256 = "1216xn1536mfjyx9j1b6128ynb3mfdmy68h7y0n656sk9p5rpf75";

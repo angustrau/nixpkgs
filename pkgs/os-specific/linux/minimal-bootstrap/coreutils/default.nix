@@ -25,29 +25,33 @@ let
   };
 
   patches = [
+    # modechange.h uses functions defined in sys/stat.h, so we need to move it to
+    # after sys/stat.h include.
     (fetchurl {
       url = "${liveBootstrap}/patches/modechange.patch";
       sha256 = "04xa4a5w2syjs3xs6qhh8kdzqavxnrxpxwyhc3qqykpk699p3ms5";
     })
+    # mbstate_t is a struct that is required. However, it is not defined by mes libc.
     (fetchurl {
       url = "${liveBootstrap}/patches/mbstate.patch";
       sha256 = "0rz3c0sflgxjv445xs87b83i7gmjpl2l78jzp6nm3khdbpcc53vy";
     })
+    # strcoll() does not exist in mes libc, change it to strcmp.
     (fetchurl {
       url = "${liveBootstrap}/patches/ls-strcmp.patch";
       sha256 = "0lx8rz4sxq3bvncbbr6jf0kyn5bqwlfv9gxyafp0541dld6l55p6";
     })
+    # getdate.c is pre-compiled from getdate.y
+    # At this point we don't have bison yet and in any case getdate.y does not
+    # compile when generated with modern bison.
     (fetchurl {
       url = "${liveBootstrap}/patches/touch-getdate.patch";
       sha256 = "1xd3z57lvkj7r8vs5n0hb9cxzlyp58pji7d335snajbxzwy144ma";
     })
+    # touch: add -h to change symlink timestamps, where supported
     (fetchurl {
       url = "${liveBootstrap}/patches/touch-dereference.patch";
       sha256 = "0wky5r3k028xwyf6g6ycwqxzc7cscgmbymncjg948vv4qxsxlfda";
-    })
-    (fetchurl {
-      url = "${liveBootstrap}/patches/tac-uint64.patch";
-      sha256 = "149y6lfhydc37rj8wggxhkgplz4hj4bqipl00r7pm18vpfn48hmv";
     })
   ];
 in

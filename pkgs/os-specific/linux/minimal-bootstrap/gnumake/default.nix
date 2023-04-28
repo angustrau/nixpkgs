@@ -34,6 +34,8 @@ let
     "-DPOSIX=1"
     # mes-libc doesn't implement osync_* methods
     "-DNO_OUTPUT_SYNC=1"
+    # mes-libc doesn't define O_TMPFILE
+    "-DO_TMPFILE=020000000"
   ] ++ config;
 
   /*
@@ -44,9 +46,7 @@ let
           --build i686-pc-linux-gnu \
           --host i686-pc-linux-gnu \
           CC="${tinycc-with-mes-libc}/bin/tcc -static" \
-          ac_cv_func_getcwd=no \
           ac_cv_func_dup=no
-    - `ac_cv_func_getcwd` disabled as mes-libc's cwd has an incompatible signature
     - `ac_cv_func_dup` disabled as mes-libc doesn't implement tmpfile()
 
     The output src/config.h was then manually filtered, removing definitions that
@@ -66,6 +66,7 @@ let
     "-DHAVE_DUP2"
     "-DHAVE_FCNTL_H"
     "-DHAVE_FDOPEN"
+    "-DHAVE_GETCWD"
     "-DHAVE_GETTIMEOFDAY"
     "-DHAVE_INTTYPES_H"
     "-DHAVE_ISATTY"

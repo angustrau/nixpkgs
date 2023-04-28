@@ -37,22 +37,28 @@ let
   };
 
   patches = [
+    # mes libc does not have locale support
     (fetchurl {
       url = "${liveBootstrap}/patches/mes-libc.patch";
       sha256 = "0zksdjf6zbb3p4hqg6plq631y76hhhgab7kdvf7cnpk8bcykn12z";
     })
+    # int name, namelen; is wrong for mes libc, it is char* name, so we modify tinycc
+    # to reflect this.
     (fetchurl {
       url = "${liveBootstrap}/patches/tinycc.patch";
       sha256 = "042d2kr4a8klazk1hlvphxr6frn4mr53k957aq3apf6lbvrjgcj2";
     })
+    # add ifdef's for features we don't want
     (fetchurl {
       url = "${liveBootstrap}/patches/missing-defines.patch";
       sha256 = "1q0k1kj5mrvjkqqly7ki5575a5b3hy1ywnmvhrln318yh67qnkj4";
     })
+    # mes libc + setting locale = not worky
     (fetchurl {
       url = "${liveBootstrap}/patches/locale.patch";
       sha256 = "1p1q1slhafsgj8x4k0dpn9h6ryq5fwfx7dicbbxhldbw7zvnnbx9";
     })
+    # We do not have /dev at this stage of the bootstrap, including /dev/tty
     (fetchurl {
       url = "${liveBootstrap}/patches/dev-tty.patch";
       sha256 = "1315slv5f7ziajqyxg4jlyanf1xwd06xw14y6pq7xpm3jzjk55j9";

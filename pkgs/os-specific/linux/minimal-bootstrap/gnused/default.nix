@@ -42,10 +42,9 @@ runCommand "${pname}-${version}" {
 
   # Configure
   catm config.h
-  cp ${makefile} Makefile
 
   # Build
-  make LIBC=mes
+  make -f ${makefile} LIBC=mes
 
   # Check
   ./sed/sed --version

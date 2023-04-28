@@ -22,4 +22,6 @@ lib.makeScope newScope (self: with self; {
   gnupatch = callPackage ./gnupatch { tinycc = tinycc-with-mes-libc; };
 
   gnumake = callPackage ./gnumake { tinycc = tinycc-with-mes-libc; };
+
+  gnused = callPackage ./gnused { tinycc = tinycc-with-mes-libc; };
 })

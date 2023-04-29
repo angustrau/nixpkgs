@@ -39,4 +39,9 @@ lib.makeScope newScope (self: with self; {
     bash = bash_2_05;
     tinycc = tinycc-with-mes-libc;
   };
+
+  musl = callPackage ./musl {
+    bash = bash_2_05;
+    tinycc = tinycc-with-mes-libc;
+  };
 })

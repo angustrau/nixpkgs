@@ -30,6 +30,8 @@ let
       url = "${liveBootstrap}/patches/lex_remove_wchar.patch";
       sha256 = "168dfngi51ljjqgd55wbvmffaq61gk48gak50ymnl1br92qkp4zh";
     })
+    # yacc patch above contains an error leading to segfault
+    ./fix-live-bootstrap-patch.patch
   ];
 in
 runCommand "${pname}-${version}" {
@@ -65,8 +67,8 @@ runCommand "${pname}-${version}" {
   make -f Makefile.mk \
     CC=tcc \
     AR="tcc -ar" \
-    CFLAGS="-DMAXPATHLEN=100 -DEILSEQ=84 -DMB_LEN_MAX=100" \
-    LDFLAGS="-lgetopt -static" \
+    CFLAGS="-DMAXPATHLEN=4096 -DEILSEQ=84 -DMB_LEN_MAX=100 -g" \
+    LDFLAGS="-lgetopt -static -g" \
     RANLIB=true \
     LIBDIR=''${out}/lib
 
@@ -93,5 +95,5 @@ runCommand "${pname}-${version}" {
   install -Dm 444 ncform ''${out}/lib/lex/ncform
   install -Dm 444 nceucform ''${out}/lib/lex/nceucform
   install -Dm 444 nrform ''${out}/lib/lex/nrform
-  install -Dm 444 libl.a ''${out}/lib/lex/libl.a
+  install -Dm 444 libl.a ''${out}/lib/libl.a
 ''

@@ -8,9 +8,12 @@
 , coreutils
 , bash
 , heirloom-devtools
+, bootstrap ? false
+, flex ? null
 }:
+assert bootstrap -> flex != null;
 let
-  pname = "flex";
+  pname = "flex" + lib.optionalString bootstrap "-boot";
   version = "2.5.11";
 
   src = fetchurl {
@@ -49,15 +52,18 @@ in
 runCommand "${pname}-${version}" {
   inherit pname version;
 
-  nativeBuildInputs = [
-    tinycc
-    gnumake
-    gnupatch
-    gnused
-    coreutils
-    bash
-    heirloom-devtools
-  ];
+  nativeBuildInputs =
+    # Order is important to override "lex" from heirloom-devtools after boot stage
+    lib.optional (!bootstrap) flex
+    ++ [
+      tinycc
+      gnumake
+      gnupatch
+      gnused
+      coreutils
+      bash
+      heirloom-devtools
+    ];
 
   meta = with lib; {
     description = "GNU Bourne-Again Shell, the de facto standard shell on Linux";

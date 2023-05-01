@@ -16,22 +16,20 @@ let
   };
 
   # Thanks to the live-bootstrap project!
-  # See https://github.com/fosslinux/live-bootstrap/blob/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/heirloom-devtools-070527/heirloom-devtools-070527.kaem
-  liveBootstrap = "https://github.com/fosslinux/live-bootstrap/raw/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/heirloom-devtools-070527";
+  # See https://github.com/fosslinux/live-bootstrap/blob/d918b984ad6fe4fc7680f3be060fd82f8c9fddd9/sysa/heirloom-devtools-070527/heirloom-devtools-070527.kaem
+  liveBootstrap = "https://github.com/fosslinux/live-bootstrap/raw/d918b984ad6fe4fc7680f3be060fd82f8c9fddd9/sysa/heirloom-devtools-070527";
 
   patches = [
     # Remove all kinds of wchar support. Mes Libc does not support wchar in any form
     (fetchurl {
       url = "${liveBootstrap}/patches/yacc_remove_wchar.patch";
-      sha256 = "0smb73q4gxsap2xdg6z11d28ppdw9mxdi4lxf2wzls2fb1ndnlpx";
+      sha256 = "0wgiz02bb7xzjy2gnbjp8y31qy6rc4b29v01zi32zh9lw54j68hc";
     })
     # Similarly to yacc, remove wchar. See yacc patch for further information
     (fetchurl {
       url = "${liveBootstrap}/patches/lex_remove_wchar.patch";
       sha256 = "168dfngi51ljjqgd55wbvmffaq61gk48gak50ymnl1br92qkp4zh";
     })
-    # yacc patch above contains an error leading to segfault
-    ./fix-live-bootstrap-patch.patch
   ];
 in
 runCommand "${pname}-${version}" {

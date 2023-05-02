@@ -4,7 +4,6 @@
 , tinycc
 , gnumake
 , gnupatch
-, gzip
 , coreutils
 , heirloom-devtools
 }:
@@ -72,7 +71,6 @@ runCommand "${pname}-${version}" {
     tinycc
     gnumake
     gnupatch
-    gzip
     coreutils
     heirloom-devtools
   ];
@@ -86,9 +84,7 @@ runCommand "${pname}-${version}" {
   };
 } ''
   # Unpack
-  cp ${src} bash.tar.gz
-  # We need gzip as ungz is not currently compliant enough
-  gunzip bash.tar.gz
+  ungz --file ${src} --output bash.tar
   untar --file bash.tar
   rm bash.tar
   build=''${NIX_BUILD_TOP}/bash-2.05b

@@ -12,46 +12,49 @@ lib.makeScope newScope (self: with self; {
 
   inherit (callPackage ./stage0-posix { }) kaem m2libc mescc-tools mescc-tools-extra writeTextFile writeText runCommand;
 
-  nyacc = callPackage ./mes/nyacc.nix { };
   mes = callPackage ./mes { };
+  inherit (mes) mes-libc;
 
-  tinycc-with-mes-libc = callPackage ./tinycc/default.nix { };
+  ln-boot = callPackage ./ln-boot { };
 
-  gnupatch = callPackage ./gnupatch { tinycc = tinycc-with-mes-libc; };
+  tinycc-bootstrappable = callPackage ./tinycc/bootstrappable.nix { };
+  tinycc-mes = callPackage ./tinycc/mes.nix { };
 
-  gnumake = callPackage ./gnumake { tinycc = tinycc-with-mes-libc; };
+  gnupatch = callPackage ./gnupatch { tinycc = tinycc-mes; };
 
-  gnused = callPackage ./gnused { tinycc = tinycc-with-mes-libc; };
+  gnumake = callPackage ./gnumake { tinycc = tinycc-mes; };
 
-  gzip = callPackage ./gzip { tinycc = tinycc-with-mes-libc; };
+  gnused = callPackage ./gnused { tinycc = tinycc-mes; };
 
-  coreutils = callPackage ./coreutils { tinycc = tinycc-with-mes-libc; };
+  gzip = callPackage ./gzip { tinycc = tinycc-mes; };
 
-  heirloom-devtools = callPackage ./heirloom-devtools { tinycc = tinycc-with-mes-libc; };
+  coreutils = callPackage ./coreutils { tinycc = tinycc-mes; };
 
-  bash_2_05 = callPackage ./bash/2.nix { tinycc = tinycc-with-mes-libc; };
+  heirloom-devtools = callPackage ./heirloom-devtools { tinycc = tinycc-mes; };
 
-  gnutar = callPackage ./gnutar { tinycc = tinycc-with-mes-libc; };
+  bash_2_05 = callPackage ./bash/2.nix { tinycc = tinycc-mes; };
 
-  gnugrep = callPackage ./gnugrep { tinycc = tinycc-with-mes-libc; };
+  gnutar = callPackage ./gnutar { tinycc = tinycc-mes; };
 
-  gawk = callPackage ./gawk { tinycc = tinycc-with-mes-libc; };
+  gnugrep = callPackage ./gnugrep { tinycc = tinycc-mes; };
+
+  gawk = callPackage ./gawk { tinycc = tinycc-mes; };
 
   flex-boot = callPackage ./flex {
     bash = bash_2_05;
-    tinycc = tinycc-with-mes-libc;
+    tinycc = tinycc-mes;
     bootstrap = true;
   };
 
   flex = callPackage ./flex {
     bash = bash_2_05;
-    tinycc = tinycc-with-mes-libc;
+    tinycc = tinycc-mes;
     bootstrap = false;
     flex = flex-boot;
   };
 
   musl = callPackage ./musl {
     bash = bash_2_05;
-    tinycc = tinycc-with-mes-libc;
+    tinycc = tinycc-mes;
   };
 })

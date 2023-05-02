@@ -2,9 +2,9 @@
 , runCommand
 , fetchurl
 , writeText
+, callPackage
 , m2libc
 , mescc-tools
-, nyacc
 }:
 let
   pname = "mes";
@@ -14,6 +14,8 @@ let
     url = "mirror://gnu/mes/mes-${version}.tar.gz";
     sha256 = "0vp8v88zszh1imm3dvdfi3m8cywshdj7xcrsq4cgmss69s2y1nkx";
   };
+
+  nyacc = callPackage ./nyacc.nix { inherit nyacc; };
 
   config_h = builtins.toFile "config.h" ''
     #undef SYSTEM_LIBC
@@ -66,20 +68,24 @@ let
     + "lib/linux/waitpid.c lib/linux/x86-mes-${cc}/syscall.c lib/linux/getpid.c "
     + "lib/linux/kill.c");
   libc_tcc_SOURCES = cc: lib.splitString " " (
-    "lib/ctype/islower.c lib/ctype/isupper.c lib/ctype/tolower.c lib/ctype/toupper.c "
-    + "lib/mes/abtod.c lib/mes/dtoab.c lib/mes/search-path.c lib/posix/execvp.c "
-    + "lib/stdio/fclose.c lib/stdio/fdopen.c lib/stdio/ferror.c lib/stdio/fflush.c "
-    + "lib/stdio/fopen.c lib/stdio/fprintf.c lib/stdio/fread.c lib/stdio/fseek.c "
-    + "lib/stdio/ftell.c lib/stdio/fwrite.c lib/stdio/printf.c lib/stdio/remove.c "
-    + "lib/stdio/snprintf.c lib/stdio/sprintf.c lib/stdio/sscanf.c lib/stdio/vfprintf.c "
-    + "lib/stdio/vprintf.c lib/stdio/vsnprintf.c lib/stdio/vsprintf.c lib/stdio/vsscanf.c "
-    + "lib/stdlib/calloc.c lib/stdlib/qsort.c lib/stdlib/strtod.c lib/stdlib/strtof.c "
-    + "lib/stdlib/strtol.c lib/stdlib/strtold.c lib/stdlib/strtoll.c lib/stdlib/strtoul.c "
-    + "lib/stdlib/strtoull.c lib/string/memmem.c lib/string/strcat.c lib/string/strchr.c "
-    + "lib/string/strlwr.c lib/string/strncpy.c lib/string/strrchr.c lib/string/strstr.c "
-    + "lib/string/strupr.c lib/stub/sigaction.c lib/stub/ldexp.c lib/stub/mprotect.c "
-    + "lib/stub/localtime.c lib/stub/sigemptyset.c lib/x86-mes-${cc}/setjmp.c "
-    + "lib/linux/close.c lib/linux/rmdir.c lib/linux/stat.c");
+      "lib/ctype/islower.c lib/ctype/isupper.c lib/ctype/tolower.c lib/ctype/toupper.c "
+      + "lib/mes/abtod.c lib/mes/dtoab.c lib/mes/search-path.c lib/posix/execvp.c "
+      + "lib/stdio/fclose.c lib/stdio/fdopen.c lib/stdio/ferror.c lib/stdio/fflush.c "
+      + "lib/stdio/fopen.c lib/stdio/fprintf.c lib/stdio/fread.c lib/stdio/fseek.c "
+      + "lib/stdio/ftell.c lib/stdio/fwrite.c lib/stdio/printf.c lib/stdio/remove.c "
+      + "lib/stdio/snprintf.c lib/stdio/sprintf.c lib/stdio/sscanf.c lib/stdio/vfprintf.c "
+      + "lib/stdio/vprintf.c lib/stdio/vsnprintf.c lib/stdio/vsprintf.c lib/stdio/vsscanf.c "
+      + "lib/stdlib/calloc.c lib/stdlib/qsort.c lib/stdlib/strtod.c lib/stdlib/strtof.c "
+      + "lib/stdlib/strtol.c lib/stdlib/strtold.c lib/stdlib/strtoll.c lib/stdlib/strtoul.c "
+      + "lib/stdlib/strtoull.c lib/string/memmem.c lib/string/strcat.c lib/string/strchr.c "
+      + "lib/string/strlwr.c lib/string/strncpy.c lib/string/strrchr.c lib/string/strstr.c "
+      + "lib/string/strupr.c lib/stub/sigaction.c lib/stub/ldexp.c lib/stub/mprotect.c "
+      + "lib/stub/localtime.c lib/stub/sigemptyset.c lib/x86-mes-${cc}/setjmp.c "
+      + "lib/linux/close.c lib/linux/rmdir.c lib/linux/stat.c"
+    ) ++ [
+      # add symlink() to libc+tcc so we can use it in ln-boot
+      "lib/linux/symlink.c"
+    ];
   libc_gnu_SOURCES = cc: libc_tcc_SOURCES cc ++ lib.splitString " " (
     "lib/ctype/isalnum.c lib/ctype/isalpha.c lib/ctype/isascii.c lib/ctype/iscntrl.c "
     + "lib/ctype/isgraph.c lib/ctype/isprint.c lib/ctype/ispunct.c lib/dirent/__getdirentries.c "
@@ -109,23 +115,34 @@ let
     + "lib/linux/lstat.c lib/linux/mkdir.c lib/linux/mknod.c lib/linux/nanosleep.c "
     + "lib/linux/pipe.c lib/linux/readlink.c lib/linux/rename.c lib/linux/setgid.c "
     + "lib/linux/settimer.c lib/linux/setuid.c lib/linux/signal.c lib/linux/sigprogmask.c "
-    + "lib/linux/symlink.c");
+    # sylink.c already included above in libc_tcc_SOURCES
+    # + "lib/linux/symlink.c"
+  );
   mes_SOURCES = cc: lib.splitString " " (
     "src/builtins.c src/cc.c src/core.c src/display.c src/eval-apply.c src/gc.c "
     + "src/globals.c src/hash.c src/lib.c src/math.c src/mes.c src/module.c src/posix.c "
     + "src/reader.c src/stack.c src/string.c src/struct.c src/symbol.c src/vector.c");
 
-  compile = sources: lib.concatMapStringsSep "\n" (f: ''CC -c ''${MES_PREFIX}/${f}'') sources;
-  replaceExt = ext: source: lib.replaceStrings [".c"] [ext] (builtins.baseNameOf source);
-  archive = out: sources: "catm ${out} ${lib.concatMapStringsSep " " (replaceExt ".o") sources}";
-  sourceArchive = out: sources: "catm ${out} ${lib.concatMapStringsSep " " (replaceExt ".s") sources}";
+  compile = sources:
+    lib.concatMapStringsSep
+      "\n"
+      (f: ''CC -c ''${MES_PREFIX}/${f}'')
+      sources;
+  replaceExt = ext: source:
+    lib.replaceStrings
+      [ ".c" ]
+      [ ext ]
+      (builtins.baseNameOf source);
+  archive = out: sources:
+    "catm ${out} ${lib.concatMapStringsSep " " (replaceExt ".o") sources}";
+  sourceArchive = out: sources:
+    "catm ${out} ${lib.concatMapStringsSep " " (replaceExt ".s") sources}";
 in
 runCommand "${pname}-${version}" {
   inherit pname version;
 
-  passthru = {
-    mesPrefix = "/share/mes-${version}";
-    libcSources = libc_SOURCES "gcc" ++ libc_gnu_SOURCES "gcc";
+  passthru.mes-libc = callPackage ./libc.nix {
+    inherit libc_SOURCES libc_gnu_SOURCES;
   };
 
   meta = with lib; {

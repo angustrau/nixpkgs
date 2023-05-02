@@ -501,7 +501,8 @@ else let
         lib.mapNullable unsafeDerivationToUntrackedOutpath attrs.allowedRequisites;
     };
 
-  validity = checkMeta { inherit attrs pos references; };
+  meta = checkMeta.commonMeta { inherit validity attrs pos references; };
+  validity = checkMeta.assertValidity { inherit meta attrs; };
 
   checkedEnv =
     let
@@ -553,7 +554,7 @@ lib.extendDerivation
      });
 
      inherit passthru overrideAttrs;
-     inherit (validity) meta;
+     inherit meta;
    } //
    # Pass through extra attributes that are not inputs, but
    # should be made available to Nix expressions using the

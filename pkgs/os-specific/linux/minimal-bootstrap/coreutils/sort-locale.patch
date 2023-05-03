@@ -1,3 +1,10 @@
+SPDX-FileCopyrightText: 2023 Emily Trau <emily@downunderctf.com>
+
+SPDX-License-Identifier: GPL-2.0-or-later
+
+strcoll() does not exist in mes libc, change it to strcmp.
+hard_LC_COLLATE is used but not declared when HAVE_SETLOCALE is unset.
+
 --- lib/memcoll.c
 +++ lib/memcoll.c
 @@ -47,7 +47,7 @@ memcoll (char *s1, size_t s1len, char *s2, size_t s2len)
@@ -12,29 +19,19 @@
 
 --- src/sort.c
 +++ src/sort.c
-@@ -1367,7 +1367,7 @@ keycompare (const struct line *a, const struct line *b)
- 	diff = getmonth (texta, lena) - getmonth (textb, lenb);
-       /* Sorting like this may become slow, so in a simple locale the user
-          can select a faster sort that is similar to ascii sort  */
--      else if (HAVE_SETLOCALE && hard_LC_COLLATE)
-+      else if (HAVE_SETLOCALE && 0)
- 	{
- 	  if (ignore || translate)
- 	    {
-@@ -1524,7 +1524,7 @@ compare (register const struct line *a, register const struct line *b)
-     diff = - NONZERO (blen);
-   else if (blen == 0)
-     diff = NONZERO (alen);
--  else if (HAVE_SETLOCALE && hard_LC_COLLATE)
-+  else if (HAVE_SETLOCALE && 0)
-     diff = xmemcoll (a->text, alen, b->text, blen);
-   else if (! (diff = memcmp (a->text, b->text, min (alen, blen))))
-     diff = alen < blen ? -1 : alen != blen;
-@@ -2180,7 +2180,6 @@ main (int argc, char **argv)
+@@ -91,13 +91,13 @@ double strtod ();
+ #define NEGATION_SIGN   '-'
+ #define NUMERIC_ZERO    '0'
  
-   atexit (cleanup);
++/* Nonzero if the corresponding locales are hard.  */
++static int hard_LC_COLLATE;
+ #if HAVE_SETLOCALE
  
--  hard_LC_COLLATE = hard_locale (LC_COLLATE);
- #if HAVE_NL_LANGINFO
-   hard_LC_TIME = hard_locale (LC_TIME);
- #endif
+ static char decimal_point;
+ static int th_sep; /* if CHAR_MAX + 1, then there is no thousands separator */
+ 
+-/* Nonzero if the corresponding locales are hard.  */
+-static int hard_LC_COLLATE;
+ # if HAVE_NL_LANGINFO
+ static int hard_LC_TIME;
+ # endif

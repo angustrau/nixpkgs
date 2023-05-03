@@ -1,5 +1,5 @@
 # Based on https://github.com/fosslinux/live-bootstrap/blob/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/coreutils-5.0/mk/main.mk
-# - Add "expr" and "sort" builtins, required by some ./configure scripts
+# - Build expr, sort, uniq, and hostname utils, required by some ./configure scripts
 
 # SPDX-FileCopyrightText: 2021 Andrius Štikonas <andrius@stikonas.eu>
 # SPDX-FileCopyrightText: 2021 Paul Dersey <pdersey@gmail.com>
@@ -82,7 +82,7 @@ SRC_DIR=src
 COREUTILS = basename cat chmod cksum csplit cut echo expand false fmt fold head id join kill link ln logname mkfifo mkdir mknod nl od paste pathchk printf ptx pwd readlink rmdir seq sleep split sum tail tee tr tsort unexpand unlink wc whoami tac test touch true yes
 
 # nixpkgs addition
-COREUTILS += expr sort
+COREUTILS += expr sort uniq hostname pr dirname factor
 
 BINARIES = $(addprefix $(SRC_DIR)/, $(COREUTILS))
 
@@ -91,6 +91,9 @@ all: $(BINARIES) $(SRC_DIR)/cp $(SRC_DIR)/ls $(SRC_DIR)/install $(SRC_DIR)/md5su
 
 LIB_DIR = lib
 LIB_SRC = acl posixtm posixver strftime getopt getopt1 hash hash-pjw addext argmatch backupfile basename canon-host closeout cycle-check diacrit dirname dup-safer error exclude exitfail filemode __fpending file-type fnmatch fopen-safer full-read full-write getline getstr gettime hard-locale human idcache isdir imaxtostr linebuffer localcharset long-options makepath mbswidth md5 memcasecmp memcoll modechange offtostr path-concat physmem quote quotearg readtokens rpmatch safe-read safe-write same save-cwd savedir settime sha stpcpy stripslash strtoimax strtoumax umaxtostr unicodeio userspec version-etc xgetcwd xgethostname xmalloc xmemcoll xnanosleep xreadlink xstrdup xstrtod xstrtol xstrtoul xstrtoimax xstrtoumax yesno strnlen getcwd sig2str mountlist regex canonicalize mkstemp memrchr euidaccess ftw dirfd obstack strverscmp strftime tempname tsearch
+
+# nixpkgs addition
+LIB_SRC += gethostname
 
 LIB_OBJECTS = $(addprefix $(LIB_DIR)/, $(addsuffix .o, $(LIB_SRC)))
 

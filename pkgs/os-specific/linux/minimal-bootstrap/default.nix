@@ -1,60 +1,62 @@
 { lib
-, newScope
-, stdenv
+, config
+, buildPlatform
+, hostPlatform
 }:
 
-lib.makeScope newScope (self: with self; {
-  callPackage = self.callPackage;
+lib.makeScope
+  # Prevent using top-level attrs to protect against introducing dependency on
+  # non-bootstrap packages by mistake. Any top-level inputs must be explicitly
+  # declared here.
+  (extra: lib.callPackageWith ({ inherit lib config buildPlatform hostPlatform; } // extra))
+  (self: with self; {
+    inherit (callPackage ./utils.nix { }) fetchurl derivationWithMeta writeTextFile writeText runCommand;
 
-  fetchurl = import ../../../build-support/fetchurl/boot.nix {
-    inherit (stdenv.buildPlatform) system;
-  };
+    inherit (callPackage ./stage0-posix { }) kaem m2libc mescc-tools mescc-tools-extra;
 
-  inherit (callPackage ./stage0-posix { }) kaem m2libc mescc-tools mescc-tools-extra writeTextFile writeText runCommand;
+    mes = callPackage ./mes { };
+    mes-libc = callPackage ./mes/libc.nix { };
 
-  mes = callPackage ./mes { };
-  inherit (mes) mes-libc;
+    ln-boot = callPackage ./ln-boot { };
 
-  ln-boot = callPackage ./ln-boot { };
+    tinycc-bootstrappable = callPackage ./tinycc/bootstrappable.nix { };
+    tinycc-mes = callPackage ./tinycc/mes.nix { };
 
-  tinycc-bootstrappable = callPackage ./tinycc/bootstrappable.nix { };
-  tinycc-mes = callPackage ./tinycc/mes.nix { };
+    gnupatch = callPackage ./gnupatch { tinycc = tinycc-mes; };
 
-  gnupatch = callPackage ./gnupatch { tinycc = tinycc-mes; };
+    gnumake = callPackage ./gnumake { tinycc = tinycc-mes; };
 
-  gnumake = callPackage ./gnumake { tinycc = tinycc-mes; };
+    gnused = callPackage ./gnused { tinycc = tinycc-mes; };
 
-  gnused = callPackage ./gnused { tinycc = tinycc-mes; };
+    gzip = callPackage ./gzip { tinycc = tinycc-mes; };
 
-  gzip = callPackage ./gzip { tinycc = tinycc-mes; };
+    coreutils = callPackage ./coreutils { tinycc = tinycc-mes; };
 
-  coreutils = callPackage ./coreutils { tinycc = tinycc-mes; };
+    heirloom-devtools = callPackage ./heirloom-devtools { tinycc = tinycc-mes; };
 
-  heirloom-devtools = callPackage ./heirloom-devtools { tinycc = tinycc-mes; };
+    bash_2_05 = callPackage ./bash/2.nix { tinycc = tinycc-mes; };
 
-  bash_2_05 = callPackage ./bash/2.nix { tinycc = tinycc-mes; };
+    gnutar = callPackage ./gnutar { tinycc = tinycc-mes; };
 
-  gnutar = callPackage ./gnutar { tinycc = tinycc-mes; };
+    gnugrep = callPackage ./gnugrep { tinycc = tinycc-mes; };
 
-  gnugrep = callPackage ./gnugrep { tinycc = tinycc-mes; };
+    gawk = callPackage ./gawk { tinycc = tinycc-mes; };
 
-  gawk = callPackage ./gawk { tinycc = tinycc-mes; };
+    flex-boot = callPackage ./flex {
+      bash = bash_2_05;
+      tinycc = tinycc-mes;
+      bootstrap = true;
+    };
 
-  flex-boot = callPackage ./flex {
-    bash = bash_2_05;
-    tinycc = tinycc-mes;
-    bootstrap = true;
-  };
+    flex = callPackage ./flex {
+      bash = bash_2_05;
+      tinycc = tinycc-mes;
+      bootstrap = false;
+      flex = flex-boot;
+    };
 
-  flex = callPackage ./flex {
-    bash = bash_2_05;
-    tinycc = tinycc-mes;
-    bootstrap = false;
-    flex = flex-boot;
-  };
-
-  musl = callPackage ./musl {
-    bash = bash_2_05;
-    tinycc = tinycc-mes;
-  };
-})
+    musl = callPackage ./musl {
+      bash = bash_2_05;
+      tinycc = tinycc-mes;
+    };
+  })

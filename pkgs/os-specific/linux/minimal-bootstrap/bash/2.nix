@@ -1,10 +1,17 @@
 { lib
+, derivationWithMeta
 , runCommand
 , fetchurl
+, writeText
 , tinycc
 , gnumake
 , gnupatch
+, gnused
+, gnugrep
+, gawk
 , coreutils
+, mescc-tools-extra
+, bash_2_05
 }:
 let
   pname = "bash";
@@ -72,6 +79,28 @@ runCommand "${pname}-${version}" {
     gnupatch
     coreutils
   ];
+
+  passthru.runCommand = name: env: buildCommand:
+    derivationWithMeta ({
+      inherit name;
+
+      builder = "${bash_2_05}/bin/bash";
+      args = [
+        "-eu"
+        (writeText "${name}-builder.sh" buildCommand)
+      ];
+
+      PATH = lib.makeBinPath ((env.nativeBuildInputs or []) ++ [
+        bash_2_05
+        coreutils
+        gnumake
+        gnugrep
+        gnused
+        gnupatch
+        gawk
+        mescc-tools-extra
+      ]);
+    } // (builtins.removeAttrs env [ "nativeBuildInputs" ]));
 
   meta = with lib; {
     description = "GNU Bourne-Again Shell, the de facto standard shell on Linux";

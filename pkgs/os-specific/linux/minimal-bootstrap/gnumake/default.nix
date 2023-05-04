@@ -45,7 +45,7 @@ let
         ./configure \
           --build i686-pc-linux-gnu \
           --host i686-pc-linux-gnu \
-          CC="${tinycc-with-mes-libc}/bin/tcc -static" \
+          CC="${tinycc-mes}/bin/tcc -static" \
           ac_cv_func_dup=no
     - `ac_cv_func_dup` disabled as mes-libc doesn't implement tmpfile()
 

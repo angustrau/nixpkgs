@@ -28,13 +28,13 @@ lib.makeScope
 
     coreutils = callPackage ./coreutils { tinycc = tinycc-mes; };
 
+    bash_2_05 = callPackage ./bash/2.nix { tinycc = tinycc-mes; };
+
     gnused = callPackage ./gnused { tinycc = tinycc-mes; };
 
     gzip = callPackage ./gzip { tinycc = tinycc-mes; };
 
     heirloom-devtools = callPackage ./heirloom-devtools { tinycc = tinycc-mes; };
-
-    bash_2_05 = callPackage ./bash/2.nix { tinycc = tinycc-mes; };
 
     gnutar = callPackage ./gnutar { tinycc = tinycc-mes; };
 

@@ -5,7 +5,6 @@
 , gnumake
 , gnupatch
 , coreutils
-, heirloom-devtools
 }:
 let
   pname = "bash";
@@ -72,7 +71,6 @@ runCommand "${pname}-${version}" {
     gnumake
     gnupatch
     coreutils
-    heirloom-devtools
   ];
 
   meta = with lib; {
@@ -100,7 +98,6 @@ runCommand "${pname}-${version}" {
   touch config.h
   touch include/version.h
   touch include/pipesize.h
-  rm y.tab.c y.tab.h
 
   # Build
   make mkbuiltins

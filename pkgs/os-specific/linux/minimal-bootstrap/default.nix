@@ -59,4 +59,6 @@ lib.makeScope
       bash = bash_2_05;
       tinycc = tinycc-mes;
     };
+
+    gnum4 = callPackage ./gnum4 { tinycc = tinycc-mes; };
   })

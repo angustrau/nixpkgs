@@ -40,7 +40,7 @@ lib.makeScope
 
     gnugrep = callPackage ./gnugrep { tinycc = tinycc-mes; };
 
-    gawk = callPackage ./gawk { tinycc = tinycc-mes; };
+    gawk = callPackage ./gawk { tinycc = tinycc-mes; bash = bash_2_05; };
 
     flex-boot = callPackage ./flex {
       bash = bash_2_05;

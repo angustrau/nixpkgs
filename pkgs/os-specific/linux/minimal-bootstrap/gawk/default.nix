@@ -1,25 +1,22 @@
 { lib
+, buildPlatform
+, hostPlatform
 , runCommand
 , fetchurl
 , tinycc
 , gnumake
+, gnused
+, gnugrep
 , coreutils
-, heirloom-devtools
+, bash
 }:
 let
-  pname = "gnugrep";
-  version = "3.0.4";
+  pname = "gawk";
+  version = "3.0.0";
 
   src = fetchurl {
     url = "mirror://gnu/gawk/gawk-${version}.tar.gz";
-    sha256 = "1c1zvcyrn0xpnzdjzm7h4iyri02yx5wzzhlqka5mldzl3zpmvhsw";
-  };
-
-  # Thanks to the live-bootstrap project!
-  # See https://github.com/fosslinux/live-bootstrap/blob/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/gawk-3.0.4
-  makefile = fetchurl {
-    url = "https://github.com/fosslinux/live-bootstrap/raw/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/gawk-3.0.4/mk/main.mk";
-    sha256 = "05s66037p96rffdrlijp9x292iki813xkcm98c72qvk67zh9adi2";
+    sha256 = "087s7vpc8zawn3l7bwv9f44bf59rc398hvaiid63klw6fkbvabr3";
   };
 in
 runCommand "${pname}-${version}" {
@@ -28,8 +25,10 @@ runCommand "${pname}-${version}" {
   nativeBuildInputs = [
     tinycc
     gnumake
+    gnused
+    gnugrep
     coreutils
-    heirloom-devtools
+    bash
   ];
 
   meta = with lib; {
@@ -47,17 +46,30 @@ runCommand "${pname}-${version}" {
   build=''${NIX_BUILD_TOP}/gawk-${version}
   cd ''${build}
 
+  # Patch
+  sed -i -e "s|date > stamp-h||g" configure
+  sed -i -e "s|-lm||g" Makefile.in
+
   # Configure
-  cp ${./Makefile} Makefile
-  cp ${./stubs.c} stubs.c
-  rm awktab.c
+  CONFIG_SHELL=bash
+  SHELL=bash
+  CC="tcc -static"
+  LD="tcc"
+  ac_cv_func_getpgrp_void=yes
+  ac_cv_func_tzset=yes
+  bash ./configure \
+    --build=${buildPlatform.config} \
+    --host=${hostPlatform.config} \
+    --disable-nls \
+    --prefix=''${out}
 
   # Build
-  make
+  make gawk
 
   # Check
   ./gawk --version
 
   # Install
-  make install PREFIX=''${out}
+  install -D gawk ''${out}/bin/gawk
+  ln -s gawk ''${out}/bin/awk
 ''

@@ -92,7 +92,7 @@ runCommand "${pname}-${version}" {
   rm parse.c parse.h scan.c skel.c
 
   # Build
-  make LDFLAGS="-static -L${heirloom-devtools}/lib/lex"
+  make LDFLAGS="-static -L${heirloom-devtools}/lib"
 
   # Check
   ./flex --version

@@ -26,11 +26,11 @@ lib.makeScope
 
     gnumake = callPackage ./gnumake { tinycc = tinycc-mes; };
 
+    coreutils = callPackage ./coreutils { tinycc = tinycc-mes; };
+
     gnused = callPackage ./gnused { tinycc = tinycc-mes; };
 
     gzip = callPackage ./gzip { tinycc = tinycc-mes; };
-
-    coreutils = callPackage ./coreutils { tinycc = tinycc-mes; };
 
     heirloom-devtools = callPackage ./heirloom-devtools { tinycc = tinycc-mes; };
 

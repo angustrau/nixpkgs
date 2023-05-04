@@ -4,7 +4,6 @@
 , tinycc
 , gnumake
 , gnupatch
-, gnused
 }:
 let
   pname = "coreutils";
@@ -61,7 +60,6 @@ runCommand "${pname}-${version}" {
     tinycc
     gnumake
     gnupatch
-    gnused
   ];
 
   meta = with lib; {
@@ -87,7 +85,6 @@ runCommand "${pname}-${version}" {
   cp lib/fnmatch_.h lib/fnmatch.h
   cp lib/ftw_.h lib/ftw.h
   cp lib/search_.h lib/search.h
-  rm src/false.c
   rm src/dircolors.h
 
   # Build

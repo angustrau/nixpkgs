@@ -1,12 +1,15 @@
 { lib
-, runCommand
+, buildPlatform
+, hostPlatform
 , fetchurl
+, bash
 , tinycc
 , gnumake
 , coreutils
+, bootstrap ? false, gnugrep, gnused
 }:
 let
-  pname = "gnugrep";
+  pname = "gnugrep" + lib.optionalString bootstrap "-bootstrap";
   version = "2.4";
 
   src = fetchurl {
@@ -21,10 +24,17 @@ let
     sha256 = "08an9ljlqry3p15w28hahm6swnd3jxizsd2188przvvsj093j91k";
   };
 in
-runCommand "${pname}-${version}" {
+bash.runCommand "${pname}-${version}" {
   inherit pname version;
 
-  nativeBuildInputs = [ tinycc gnumake coreutils ];
+  nativeBuildInputs = [
+    tinycc
+    gnumake
+    coreutils
+  ] ++ lib.optionals (!bootstrap) [
+    gnused
+    gnugrep
+  ];
 
   meta = with lib; {
     description = "GNU implementation of the Unix grep command";
@@ -34,13 +44,13 @@ runCommand "${pname}-${version}" {
     mainProgram = "grep";
     platforms = platforms.unix;
   };
-} ''
+} (''
   # Unpack
   ungz --file ${src} --output grep.tar
   untar --file grep.tar
   rm grep.tar
   cd grep-${version}
-
+'' + lib.optionalString bootstrap ''
   # Configure
   cp ${makefile} Makefile
 
@@ -52,4 +62,21 @@ runCommand "${pname}-${version}" {
 
   # Install
   make install PREFIX=''${out}
-''
+'' + lib.optionalString (!bootstrap) ''
+  # Configure
+  export CC="tcc -static -DPAGESIZE=4096"
+  bash ./configure \
+    --build=${buildPlatform.config} \
+    --host=${hostPlatform.config} \
+    --disable-nls \
+    --prefix=''${out}
+
+  # Build
+  make
+
+  # Check
+  ./src/grep --version
+
+  # Install
+  make install
+'')

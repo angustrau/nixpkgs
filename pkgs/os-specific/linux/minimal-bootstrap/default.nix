@@ -31,9 +31,10 @@ lib.makeScope
     bash_2_05 = callPackage ./bash/2.nix { tinycc = tinycc-mes; };
 
     gnused-boot = callPackage ./gnused { tinycc = tinycc-mes; bash = bash_2_05; bootstrap = true; };
-    gnused = callPackage ./gnused { tinycc = tinycc-mes; bash = bash_2_05; gnused = gnused-boot; };
+    gnused = callPackage ./gnused { tinycc = tinycc-mes; bash = bash_2_05; gnused = gnused-boot; gnugrep = gnugrep-boot; };
 
-    gnugrep = callPackage ./gnugrep { tinycc = tinycc-mes; };
+    gnugrep-boot = callPackage ./gnugrep { tinycc = tinycc-mes; bash = bash_2_05; bootstrap = true; };
+    gnugrep = callPackage ./gnugrep { tinycc = tinycc-mes; bash = bash_2_05; gnugrep = gnugrep-boot; };
 
     gawk = callPackage ./gawk { tinycc = tinycc-mes; bash = bash_2_05; };
 

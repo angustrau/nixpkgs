@@ -39,8 +39,7 @@ runCommand "${pname}-${version}" {
   ungz --file ${src} --output grep.tar
   untar --file grep.tar
   rm grep.tar
-  build=''${NIX_BUILD_TOP}/grep-${version}
-  cd ''${build}
+  cd grep-${version}
 
   # Configure
   cp ${makefile} Makefile

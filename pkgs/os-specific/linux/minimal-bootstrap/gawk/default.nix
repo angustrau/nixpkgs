@@ -3,32 +3,33 @@
 , hostPlatform
 , runCommand
 , fetchurl
+, bash
 , tinycc
 , gnumake
 , gnused
 , gnugrep
 , coreutils
-, bash
 }:
 let
   pname = "gawk";
-  version = "3.0.0";
+  # >=3.1.x requires gettext
+  version = "3.0.6";
 
   src = fetchurl {
     url = "mirror://gnu/gawk/gawk-${version}.tar.gz";
-    sha256 = "087s7vpc8zawn3l7bwv9f44bf59rc398hvaiid63klw6fkbvabr3";
+    sha256 = "1z4bibjm7ldvjwq3hmyifyb429rs2d9bdwkvs0r171vv1khpdwmb";
   };
 in
 runCommand "${pname}-${version}" {
   inherit pname version;
 
   nativeBuildInputs = [
+    bash
     tinycc
     gnumake
     gnused
     gnugrep
     coreutils
-    bash
   ];
 
   meta = with lib; {
@@ -43,11 +44,12 @@ runCommand "${pname}-${version}" {
   ungz --file ${src} --output gawk.tar
   untar --file gawk.tar
   rm gawk.tar
-  build=''${NIX_BUILD_TOP}/gawk-${version}
-  cd ''${build}
+  cd gawk-${version}
 
   # Patch
+  # for reproducibility don't generate datestamp
   sed -i -e "s|date > stamp-h||g" configure
+  # mes-libc doesn't require linking with -lm
   sed -i -e "s|-lm||g" Makefile.in
 
   # Configure

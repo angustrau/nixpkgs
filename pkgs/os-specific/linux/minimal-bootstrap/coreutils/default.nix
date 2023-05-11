@@ -15,8 +15,13 @@ let
   };
 
   # Thanks to the live-bootstrap project!
-  # See https://github.com/fosslinux/live-bootstrap/blob/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/coreutils-5.0/coreutils-5.0.kaem
-  liveBootstrap = "https://github.com/fosslinux/live-bootstrap/raw/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/coreutils-5.0";
+  # See https://github.com/fosslinux/live-bootstrap/blob/e86db47b6ee40d68e26866dd15e8637f64d6d778/sysa/coreutils-5.0/coreutils-5.0.kaem
+  liveBootstrap = "https://github.com/fosslinux/live-bootstrap/raw/e86db47b6ee40d68e26866dd15e8637f64d6d778/sysa/coreutils-5.0";
+
+  makefile = fetchurl {
+    url = "${liveBootstrap}/mk/main.mk";
+    sha256 = "0njg4xccxfqrslrmlb8ls7h6hlnfmdx42nvxwmca8flvczwrplfd";
+  };
 
   patches = [
     # modechange.h uses functions defined in sys/stat.h, so we need to move it to
@@ -48,9 +53,16 @@ let
       sha256 = "0wky5r3k028xwyf6g6ycwqxzc7cscgmbymncjg948vv4qxsxlfda";
     })
     # strcoll() does not exist in mes libc, change it to strcmp.
-    ./expr-strcmp.patch
-    # mes libc does not support locale
-    ./sort-locale.patch
+    (fetchurl {
+      url = "${liveBootstrap}/patches/expr-strcmp.patch";
+      sha256 = "19f31lfsm1iwqzvp2fyv97lmqg4730prfygz9zip58651jf739a9";
+    })
+    # strcoll() does not exist in mes libc, change it to strcmp.
+    # hard_LC_COLLATE is used but not declared when HAVE_SETLOCALE is unset.
+    (fetchurl {
+      url = "${liveBootstrap}/patches/sort-locale.patch";
+      sha256 = "0bdch18mpyyxyl6gyqfs0wb4pap9flr11izqdyxccx1hhz0a2i6c";
+    })
   ];
 in
 runCommand "${pname}-${version}" {
@@ -74,11 +86,10 @@ runCommand "${pname}-${version}" {
   ungz --file ${src} --output coreutils.tar
   untar --file coreutils.tar
   rm coreutils.tar
-  build=''${NIX_BUILD_TOP}/coreutils-${version}
-  cd ''${build}
+  cd coreutils-${version}
 
   # Patch
-  ${lib.concatLines (map (f: "patch -Np0 -i ${f}") patches)}
+  ${lib.concatMapStringsSep "\n" (f: "patch -Np0 -i ${f}") patches}
 
   # Configure
   catm config.h
@@ -88,12 +99,12 @@ runCommand "${pname}-${version}" {
   rm src/dircolors.h
 
   # Build
-  make -f ${./Makefile} PREFIX=''${out}
+  make -f ${makefile} PREFIX=''${out}
 
   # Check
   ./src/echo "Hello coreutils!"
 
   # Install
   ./src/mkdir -p ''${out}/bin
-  make -f ${./Makefile} install PREFIX=''${out}
+  make -f ${makefile} install PREFIX=''${out}
 ''

@@ -28,11 +28,12 @@ lib.makeScope
 
     coreutils = callPackage ./coreutils { tinycc = tinycc-mes; };
 
-    gnused = callPackage ./gnused { tinycc = tinycc-mes; };
+    bash_2_05 = callPackage ./bash/2.nix { tinycc = tinycc-mes; };
+
+    gnused-boot = callPackage ./gnused { tinycc = tinycc-mes; bash = bash_2_05; bootstrap = true; };
+    gnused = callPackage ./gnused { tinycc = tinycc-mes; bash = bash_2_05; gnused = gnused-boot; };
 
     gnugrep = callPackage ./gnugrep { tinycc = tinycc-mes; };
-
-    bash_2_05 = callPackage ./bash/2.nix { tinycc = tinycc-mes; };
 
     gawk = callPackage ./gawk { tinycc = tinycc-mes; bash = bash_2_05; };
 

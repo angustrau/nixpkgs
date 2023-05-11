@@ -1,12 +1,16 @@
 { lib
-, runCommand
+, buildPlatform
+, hostPlatform
 , fetchurl
+, bash
 , tinycc
 , gnumake
+, coreutils
+, bootstrap ? false, gnused, gnugrep
 }:
 let
-  pname = "gnused";
-  # last version that can be compiled with mes-libc
+  pname = "gnused" + lib.optionalString bootstrap "-bootstrap";
+  # >=3.1.x introduces gettext
   version = "4.0.9";
 
   src = fetchurl {
@@ -21,10 +25,17 @@ let
     sha256 = "0w1f5ri0g5zla31m6l6xyzbqwdvandqfnzrsw90dd6ak126w3mya";
   };
 in
-runCommand "${pname}-${version}" {
+bash.runCommand "${pname}-${version}" {
   inherit pname version;
 
-  nativeBuildInputs = [ tinycc gnumake ];
+  nativeBuildInputs = [
+    tinycc
+    gnumake
+    coreutils
+  ] ++ lib.optionals (!bootstrap) [
+    gnused
+    gnugrep
+  ];
 
   meta = with lib; {
     description = "GNU sed, a batch stream editor";
@@ -34,13 +45,13 @@ runCommand "${pname}-${version}" {
     mainProgram = "sed";
     platforms = platforms.unix;
   };
-} ''
+} (''
   # Unpack
   ungz --file ${src} --output sed.tar
   untar --file sed.tar
   rm sed.tar
   cd sed-${version}
-
+'' + lib.optionalString bootstrap ''
   # Configure
   cp ${makefile} Makefile
   catm config.h
@@ -55,4 +66,23 @@ runCommand "${pname}-${version}" {
   mkdir -p ''${out}/bin
   cp sed/sed ''${out}/bin
   chmod 555 ''${out}/bin/sed
-''
+'' + lib.optionalString (!bootstrap) ''
+  # Configure
+  export CC="tcc -static -DHAVE_FCNTL_H"
+  export LD="tcc"
+  bash ./configure \
+    --build=${buildPlatform.config} \
+    --host=${hostPlatform.config} \
+    --disable-nls \
+    --disable-dependency-tracking \
+    --prefix=''${out}
+
+  # Build
+  make AR="tcc -ar"
+
+  # Check
+  ./sed/sed --version
+
+  # Install
+  make install
+'')

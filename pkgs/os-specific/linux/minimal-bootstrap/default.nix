@@ -32,9 +32,9 @@ lib.makeScope
 
     gnugrep = callPackage ./gnugrep { tinycc = tinycc-mes; };
 
-    gawk = callPackage ./gawk { tinycc = tinycc-mes; bash = bash_2_05; };
-
     bash_2_05 = callPackage ./bash/2.nix { tinycc = tinycc-mes; };
+
+    gawk = callPackage ./gawk { tinycc = tinycc-mes; bash = bash_2_05; };
 
     gzip = callPackage ./gzip { tinycc = tinycc-mes; };
 

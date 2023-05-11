@@ -6,9 +6,6 @@
 , tinycc
 , gnumake
 , gnupatch
-, gnused
-, gnugrep
-, gawk
 , coreutils
 , mescc-tools-extra
 , bash_2_05
@@ -86,20 +83,17 @@ runCommand "${pname}-${version}" {
 
       builder = "${bash_2_05}/bin/bash";
       args = [
-        "-eu"
-        (writeText "${name}-builder.sh" buildCommand)
+        "-e"
+        (writeText "bash-builder.sh" ''
+          export SHELL=${bash_2_05}/bin/bash
+          export CONFIG_SHELL=$SHELL
+          bash -eux $buildCommandPath
+        '')
       ];
 
-      PATH = lib.makeBinPath ((env.nativeBuildInputs or []) ++ [
-        bash_2_05
-        coreutils
-        gnumake
-        gnugrep
-        gnused
-        gnupatch
-        gawk
-        mescc-tools-extra
-      ]);
+      PATH = lib.makeBinPath ((env.nativeBuildInputs or []) ++ [ bash_2_05 mescc-tools-extra ]);
+      inherit buildCommand;
+      passAsFile = [ "buildCommand" ];
     } // (builtins.removeAttrs env [ "nativeBuildInputs" ]));
 
   meta = with lib; {
@@ -114,11 +108,10 @@ runCommand "${pname}-${version}" {
   ungz --file ${src} --output bash.tar
   untar --file bash.tar
   rm bash.tar
-  build=''${NIX_BUILD_TOP}/bash-2.05b
-  cd ''${build}
+  cd bash-2.05b
 
   # Patch
-  ${lib.concatLines (map (f: "patch -Np0 -i ${f}") patches)}
+  ${lib.concatMapStringsSep "\n" (f: "patch -Np0 -i ${f}") patches}
 
   # Configure
   cp ${main_mk} Makefile

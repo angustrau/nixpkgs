@@ -1,7 +1,6 @@
 { lib
 , buildPlatform
 , hostPlatform
-, runCommand
 , fetchurl
 , bash
 , tinycc
@@ -12,7 +11,7 @@
 }:
 let
   pname = "gawk";
-  # >=3.1.x requires gettext
+  # >=3.1.x introduces gettext
   version = "3.0.6";
 
   src = fetchurl {
@@ -20,11 +19,10 @@ let
     sha256 = "1z4bibjm7ldvjwq3hmyifyb429rs2d9bdwkvs0r171vv1khpdwmb";
   };
 in
-runCommand "${pname}-${version}" {
+bash.runCommand "${pname}-${version}" {
   inherit pname version;
 
   nativeBuildInputs = [
-    bash
     tinycc
     gnumake
     gnused
@@ -53,12 +51,12 @@ runCommand "${pname}-${version}" {
   sed -i -e "s|-lm||g" Makefile.in
 
   # Configure
-  CONFIG_SHELL=bash
-  SHELL=bash
-  CC="tcc -static"
-  LD="tcc"
-  ac_cv_func_getpgrp_void=yes
-  ac_cv_func_tzset=yes
+  export CONFIG_SHELL=bash
+  export SHELL=bash
+  export CC="tcc -static"
+  export LD="tcc"
+  export ac_cv_func_getpgrp_void=yes
+  export ac_cv_func_tzset=yes
   bash ./configure \
     --build=${buildPlatform.config} \
     --host=${hostPlatform.config} \

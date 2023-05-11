@@ -39,14 +39,14 @@ runCommand "${pname}-${version}" {
   ungz --file ${src} --output sed.tar
   untar --file sed.tar
   rm sed.tar
-  build=''${NIX_BUILD_TOP}/sed-${version}
-  cd ''${build}
+  cd sed-${version}
 
   # Configure
+  cp ${makefile} Makefile
   catm config.h
 
   # Build
-  make -f ${makefile} LIBC=mes
+  make LIBC=mes
 
   # Check
   ./sed/sed --version

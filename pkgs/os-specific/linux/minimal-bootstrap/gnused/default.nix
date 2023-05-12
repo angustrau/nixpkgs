@@ -10,7 +10,7 @@
 }:
 let
   pname = "gnused" + lib.optionalString bootstrap "-bootstrap";
-  # >=3.1.x introduces gettext
+  # last version that can be compiled with mes-libc
   version = "4.0.9";
 
   src = fetchurl {

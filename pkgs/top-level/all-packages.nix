@@ -14766,6 +14766,7 @@ with pkgs;
   inherit (let
       num =
         if (with stdenv.targetPlatform; isVc4 || libc == "relibc") then 6
+        else if stdenv.targetPlatform.isSerenity then 12
         else 12;
       numS = toString num;
     in {

@@ -257,10 +257,10 @@ in {
       ]
       # Add support for serenity
       # https://github.com/SerenityOS/serenity/tree/9ca21ba1d55a5d02c1c92154cd682adc695d2c81/Ports/openssl/patches
-      ++ lib.optionals stdenv.hostPlatform.isSerenity ([
+      ++ lib.optionals stdenv.hostPlatform.isSerenity [
         ./support-serenity.patch
         ./3.0/serenity-os-data.patch
-      ]);
+      ];
 
     withDocs = true;
 

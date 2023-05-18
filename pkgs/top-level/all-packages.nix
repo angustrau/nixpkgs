@@ -6612,7 +6612,7 @@ with pkgs;
   curl = curlMinimal.override ({
     idnSupport = true;
     zstdSupport = true;
-  } // lib.optionalAttrs (!stdenv.hostPlatform.isStatic) {
+  } // lib.optionalAttrs (!stdenv.hostPlatform.isStatic && !stdenv.hostPlatform.isSerenity) {
     gssSupport = true;
     brotliSupport = true;
   });

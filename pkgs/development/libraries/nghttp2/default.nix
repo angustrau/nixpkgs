@@ -5,7 +5,7 @@
 , pkg-config
 
 # Optional dependencies
-, enableApp ? with stdenv.hostPlatform; !isWindows && !isStatic
+, enableApp ? with stdenv.hostPlatform; !isWindows && !isSerenity && !isStatic
 , c-aresMinimal, libev, openssl, zlib
 , enableAsioLib ? false, boost
 , enableGetAssets ? false, libxml2

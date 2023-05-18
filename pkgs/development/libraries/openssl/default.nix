@@ -229,8 +229,8 @@ in {
       [
         ./1.1/nix-ssl-cert-file.patch
 
-        (if stdenv.hostPlatform.isDarwin
-        then ./use-etc-ssl-certs-darwin.patch
+        (if stdenv.hostPlatform.isDarwin       then ./use-etc-ssl-certs-darwin.patch
+        else if stdenv.hostPlatform.isSerenity then ./use-etc-ssl-certs-serenity.patch
         else ./use-etc-ssl-certs.patch)
       ]
       # Add support for serenity
@@ -250,8 +250,8 @@ in {
         # This patch disables build-time detection.
         ./3.0/openssl-disable-kernel-detection.patch
 
-        (if stdenv.hostPlatform.isDarwin
-        then ./use-etc-ssl-certs-darwin.patch
+        (if stdenv.hostPlatform.isDarwin       then ./use-etc-ssl-certs-darwin.patch
+        else if stdenv.hostPlatform.isSerenity then ./use-etc-ssl-certs-serenity.patch
         else ./use-etc-ssl-certs.patch)
 
       ]

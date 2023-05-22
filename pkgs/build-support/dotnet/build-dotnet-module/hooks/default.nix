@@ -1,4 +1,7 @@
 { lib
+, stdenv
+, zlib
+, openssl
 , callPackage
 , makeSetupHook
 , makeWrapper
@@ -23,6 +26,14 @@ in
       propagatedBuildInputs = [ dotnet-sdk nuget-source ];
       substitutions = {
         nugetSource = nuget-source;
+        dynamicLinker = "${stdenv.cc}/nix-support/dynamic-linker";
+        libPath = lib.makeLibraryPath [
+          stdenv.cc.cc.lib
+          stdenv.cc.libc
+          dotnet-sdk.passthru.icu
+          zlib
+          openssl
+        ];
         inherit runtimeId;
       };
     } ./dotnet-configure-hook.sh) { };

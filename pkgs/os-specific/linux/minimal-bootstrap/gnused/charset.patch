@@ -1,0 +1,32 @@
+diff --git a/lib/localcharset.c b/lib/localcharset.c
+index b4998ee..d23cd58 100644
+--- a/lib/localcharset.c
++++ b/lib/localcharset.c
+@@ -118,7 +118,7 @@ get_charset_aliases (void)
+   cp = charset_aliases;
+   if (cp == NULL)
+     {
+-#if !(defined DARWIN7 || defined VMS || defined WIN32_NATIVE || defined __CYGWIN__)
++#if !(defined DARWIN7 || defined VMS || defined WIN32_NATIVE || defined __CYGWIN__ || defined __TINYC__)
+       FILE *fp;
+       const char *dir;
+       const char *base = "charset.alias";
+@@ -219,6 +219,10 @@ get_charset_aliases (void)
+ 
+ #else
+ 
++# if defined __TINYC__
++		cp = "ISO_646.IRV:1983" "\0" "ASCII" "\0";
++# endif
++
+ # if defined DARWIN7
+       /* To avoid the trouble of installing a file that is shared by many
+ 	 GNU packages -- many packaging systems have problems with this --,
+@@ -326,6 +330,7 @@ STATIC
+ const char *
+ locale_charset (void)
+ {
++	return "ASCII";
+   const char *codeset;
+   const char *aliases;
+ 

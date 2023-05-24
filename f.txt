@@ -1,0 +1,8 @@
+build_vendor='unknown'
+clooginc=''
+clooglibs=''
+compare_exclusions='gcc/cc*-checksum$(objext) | gcc/ada/*tools/*'
+config_shell='bash'
+configdirs=' intl libiberty opcodes bfd binutils gas ld gprof etc'
+datadir='${datarootdir}'
+datarootdir='${prefix}/share'

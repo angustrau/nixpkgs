@@ -26946,6 +26946,7 @@ with pkgs;
   minimal-bootstrap = recurseIntoAttrs (import ../os-specific/linux/minimal-bootstrap {
     inherit (stdenv) buildPlatform hostPlatform;
     inherit lib config;
+    cheatingPkgs = pkgs;
   });
 
   mingetty = callPackage ../os-specific/linux/mingetty { };

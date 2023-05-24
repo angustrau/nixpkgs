@@ -1,0 +1,5 @@
+F["serialization_dependencies"]="serdep.tmp"
+F["host_makefile_frag"]="/dev/null"
+F["target_makefile_frag"]="./config/mt-gnu"
+F["alphaieee_frag"]="/dev/null"
+F["ospace_frag"]="/dev/null"

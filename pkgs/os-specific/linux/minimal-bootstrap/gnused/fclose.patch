@@ -1,0 +1,22 @@
+diff --git a/lib/utils.c b/lib/utils.c
+index 90067dc..660497f 100644
+--- a/lib/utils.c
++++ b/lib/utils.c
+@@ -156,7 +156,7 @@ ck_fwrite(ptr, size, nmemb, stream)
+   FILE *stream;
+ {
+   clearerr(stream);
+-  if (size && fwrite(ptr, size, nmemb, stream) != nmemb)
++  if (size && fwrite(ptr, size, nmemb, stream) != nmemb && strncmp(utils_fp_name(stream), "/dev/", 5) != 0)
+     panic(ngettext("couldn't write %d item to %s: %s",
+ 		   "couldn't write %d items to %s: %s", nmemb), 
+ 		nmemb, utils_fp_name(stream), strerror(errno));
+@@ -183,7 +183,7 @@ ck_fflush(stream)
+   FILE *stream;
+ {
+   clearerr(stream);
+-  if (fflush(stream) == EOF && errno != EBADF)
++  if (fflush(stream) == EOF && errno != EBADF && strncmp(utils_fp_name(stream), "/dev/", 5) != 0 && stream != stdout && stream != stdin)
+     panic("Couldn't flush %s: %s", utils_fp_name(stream), strerror(errno));
+ }
+ 

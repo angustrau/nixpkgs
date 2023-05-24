@@ -1,0 +1,47 @@
+diff --git a/lib/btowc.c b/lib/btowc.c
+index 7f3b966..259e669 100644
+--- a/lib/btowc.c
++++ b/lib/btowc.c
+@@ -25,14 +25,5 @@
+ wint_t
+ btowc (int c)
+ {
+-  if (c != EOF)
+-    {
+-      char buf[1];
+-      wchar_t wc;
+-
+-      buf[0] = c;
+-      if (mbtowc (&wc, buf, 1) >= 0)
+-	return wc;
+-    }
+-  return WEOF;
++  return c;
+ }
+diff --git a/lib/mbrtowc.c b/lib/mbrtowc.c
+index 0fec5f1..9572267 100644
+--- a/lib/mbrtowc.c
++++ b/lib/mbrtowc.c
+@@ -96,7 +96,8 @@ mbrtowc (wchar_t *pwc, const char *s, size_t n, mbstate_t *ps)
+     mbtowc (NULL, NULL, 0);
+ # endif
+     {
+-      int res = mbtowc (pwc, p, m);
++			*pwc = p[0];
++			int res = 1;
+ 
+       if (res >= 0)
+ 	{
+diff --git a/lib/wchar.in.h b/lib/wchar.in.h
+index 2d66c32..5dbbc54 100644
+--- a/lib/wchar.in.h
++++ b/lib/wchar.in.h
+@@ -32,7 +32,7 @@
+ @PRAGMA_SYSTEM_HEADER@
+ #endif
+ 
+-#if defined __need_mbstate_t || (defined __hpux && ((defined _INTTYPES_INCLUDED && !defined strtoimax) || defined _GL_JUST_INCLUDE_SYSTEM_WCHAR_H)) || defined _GL_ALREADY_INCLUDING_WCHAR_H
++#if 0
+ /* Special invocation convention:
+    - Inside uClibc header files.
+    - On HP-UX 11.00 we have a sequence of nested includes

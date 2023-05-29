@@ -5,6 +5,7 @@
 , gnumake
 , gnupatch
 , heirloom-devtools
+, heirloom
 }:
 let
   pname = "heirloom";
@@ -78,6 +79,11 @@ bash.runCommand "${pname}-${version}" {
     gnupatch
     heirloom-devtools
   ];
+
+  passthru.sed =
+    bash.runCommand "${pname}-sed-${version}" {} ''
+      install -D ${heirloom}/bin/sed $out/bin/sed
+    '';
 
   passthru.tests.get-version = result:
     bash.runCommand "${pname}-get-version-${version}" {} ''

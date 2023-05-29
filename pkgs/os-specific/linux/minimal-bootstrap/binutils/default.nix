@@ -1,0 +1,130 @@
+{ lib
+, buildPlatform
+, hostPlatform
+, targetPlatform
+, fetchurl
+, bash
+, tinycc
+, gnumake
+, gnupatch
+, gnugrep
+, gnutar
+, gawk
+, bzip2
+, heirloom
+}:
+let
+  pname = "binutils";
+  version = "2.20.1";
+  rev = "a";
+
+  src = fetchurl {
+    url = "mirror://gnu/binutils/binutils-${version}${rev}.tar.bz2";
+    sha256 = "0r7dr0brfpchh5ic0z9r4yxqn4ybzmlh25sbp30cacqk8nb7rlvi";
+  };
+
+  patches = [
+    # Enables building binutils using TCC and Mes C Library
+    (fetchurl {
+      url = "https://git.savannah.gnu.org/cgit/guix.git/plain/gnu/packages/patches/binutils-boot-2.20.1a.patch?id=50249cab3a98839ade2433456fe618acc6f804a5";
+      sha256 = "086sf6an2k56axvs4jlky5n3hs2l3rq8zq5d37h0b69cdyh7igpn";
+    })
+
+    # Make binutils output deterministic by default.
+    ./deterministic.patch
+
+    # For some reason bfd ld doesn't search DT_RPATH when cross-compiling. It's
+    # not clear why this behavior was decided upon but it has the unfortunate
+    # consequence that the linker will fail to find transitive dependencies of
+    # shared objects when cross-compiling. Consequently, we are forced to
+    # override this behavior, forcing ld to search DT_RPATH even when
+    # cross-compiling.
+    ./always-search-rpath.patch
+  ];
+
+  #INFO: The targetPrefix prepended to binary names to allow multiple binuntils
+  # on the PATH to both be usable.
+  targetPrefix = lib.optionalString (targetPlatform != hostPlatform) "${targetPlatform.config}-";
+
+  configureFlags = [
+    "--disable-nls"
+    "--disable-shared"
+    "--disable-werror"
+    "--prefix=${placeholder "out"}"
+
+    "--build=${buildPlatform.config}"
+    "--host=${hostPlatform.config}"
+    "--target=${targetPlatform.config}"
+
+    # Turn on --enable-new-dtags by default to make the linker set
+    # RUNPATH instead of RPATH on binaries.  This is important because
+    # RUNPATH can be overridden using LD_LIBRARY_PATH at runtime.
+    "--enable-new-dtags"
+
+    # force target prefix. Some versions of binutils will make it empty if
+    # `--host` and `--target` are too close, even if Nixpkgs thinks the
+    # platforms are different (e.g. because not all the info makes the
+    # `config`). Other versions of binutils will always prefix if `--target` is
+    # passed, even if `--host` and `--target` are the same. The easiest thing
+    # for us to do is not leave it to chance, and force the program prefix to be
+    # what we want it to be.
+    "--program-prefix=${targetPrefix}"
+
+    # By default binutils searches $libdir for libraries. This brings in
+    # libbfd and libopcodes into a default visibility. Drop default lib
+    # path to force users to declare their use of these libraries.
+    "--with-lib-path=:"
+  ];
+in
+bash.runCommand "${pname}-${version}" {
+  inherit pname version;
+
+  nativeBuildInputs = [
+    tinycc.compiler
+    gnumake
+    gnupatch
+    gnugrep
+    gnutar
+    gawk
+    bzip2
+    heirloom.sed
+  ];
+
+  passthru.tests.get-version = result:
+    bash.runCommand "${pname}-get-version-${version}" {} ''
+      ${result}/${targetPlatform.config}/bin/ld --version
+      mkdir $out
+    '';
+
+  meta = with lib; {
+    description = "Tools for manipulating binaries (linker, assembler, etc.)";
+    homepage = "https://www.gnu.org/software/binutils";
+    license = licenses.gpl3Plus;
+    maintainers = teams.minimal-bootstrap.members;
+    platforms = platforms.unix;
+  };
+} ''
+  # Unpack
+  cp ${src} binutils.tar.bz2
+  bunzip2 binutils.tar.bz2
+  tar xf binutils.tar
+  rm binutils.tar
+  cd binutils-${version}
+
+  # Patch
+  ${lib.concatLines (map (f: "patch -Np1 -i ${f}") patches)}
+  # Clear the default library search path.
+  echo 'NATIVE_LIB_DIRS=' >> ld/configure.tgt
+
+  # Configure
+  export CC="tcc -B ${tinycc.libs}/lib -D __GLIBC_MINOR__=6 -D MES_BOOTSTRAP=1"
+  export AR="tcc -ar"
+  export SED=sed
+  bash ./configure ${lib.concatStringsSep " " configureFlags}
+
+  # Build
+  make
+
+  # Install
+  make install
+''

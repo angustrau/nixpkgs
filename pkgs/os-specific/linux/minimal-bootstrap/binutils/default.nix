@@ -35,14 +35,6 @@ let
 
     # Make binutils output deterministic by default.
     ./deterministic.patch
-
-    # For some reason bfd ld doesn't search DT_RPATH when cross-compiling. It's
-    # not clear why this behavior was decided upon but it has the unfortunate
-    # consequence that the linker will fail to find transitive dependencies of
-    # shared objects when cross-compiling. Consequently, we are forced to
-    # override this behavior, forcing ld to search DT_RPATH even when
-    # cross-compiling.
-    ./always-search-rpath.patch
   ];
 
   #INFO: The targetPrefix prepended to binary names to allow multiple binuntils

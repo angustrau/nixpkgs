@@ -38,6 +38,11 @@ lib.makeScope
       tinycc = tinycc-mes;
     };
 
+    glibc22 = callPackage ./glibc/2.2.nix {
+      bash = bash_2_05;
+      gcc = gcc2-mes;
+    };
+
     gnugrep = callPackage ./gnugrep {
       bash = bash_2_05;
       tinycc = tinycc-mes;
@@ -70,6 +75,7 @@ lib.makeScope
     heirloom-devtools = callPackage ./heirloom-devtools { tinycc = tinycc-mes; };
 
     linux-libre-headers = callPackage ./linux-libre-headers { bash = bash_2_05; };
+    linuxHeaders = linux-libre-headers;
 
     ln-boot = callPackage ./ln-boot { };
 

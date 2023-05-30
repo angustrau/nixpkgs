@@ -33,9 +33,15 @@ lib.makeScope
       tinycc = tinycc-mes;
     };
 
+    gcc2 = callPackage ./gcc/2.nix {
+      bash = bash_2_05;
+      gcc = gcc2-mes;
+      glibc = glibc22;
+    };
     gcc2-mes = callPackage ./gcc/2.nix {
       bash = bash_2_05;
       tinycc = tinycc-mes;
+      mesBootstrap = true;
     };
 
     glibc22 = callPackage ./glibc/2.2.nix {
@@ -101,6 +107,7 @@ lib.makeScope
       echo ${binutils.tests.get-version}
       echo ${bzip2.tests.get-version}
       echo ${gawk.tests.get-version}
+      echo ${gcc2.tests.get-version}
       echo ${gcc2-mes.tests.get-version}
       echo ${gnugrep.tests.get-version}
       echo ${gnused.tests.get-version}

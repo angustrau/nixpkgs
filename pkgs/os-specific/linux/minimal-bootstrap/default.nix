@@ -53,11 +53,9 @@ lib.makeScope
       mesBootstrap = true;
     };
 
-    glibc22 = callPackage ./glibc/2.2.nix {
+    inherit (callPackage ./glibc {
       bash = bash_2_05;
-      gcc = gcc2-mes;
-      binutils = binutils-mes;
-    };
+    }) glibc22;
 
     gnugrep = callPackage ./gnugrep {
       bash = bash_2_05;

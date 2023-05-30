@@ -105,7 +105,10 @@ bash.runCommand "${pname}-${version}" {
   cd tmp
   ar x ../gcc/libgcc2.a
   ar x ${tinycc.libs}/lib/libtcc1.a
-  ar r $out/lib/gcc-lib/i686-unknown-linux-gnu/2.95.3/libgcc.a *.o
+  ar r $out/lib/gcc-lib/${targetPlatform.config}/${version}/libgcc.a *.o
   cd ..
   cp gcc/libgcc2.a $out/lib/libgcc2.a
+  ar x ${tinycc.libs}/lib/libtcc1.a
+  ar x ${tinycc.libs}/lib/libc.a
+  ar r $out/lib/gcc-lib/${targetPlatform.config}/${version}/libc.a libc.o libtcc1.o
 ''

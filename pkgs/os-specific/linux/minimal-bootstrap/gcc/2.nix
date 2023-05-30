@@ -77,7 +77,6 @@ bash.runCommand "${pname}-${version}" {
 
   # Patch
   ${lib.concatMapStringsSep "\n" (f: "patch -Np1 -i ${f}") patches}
-  replace --file gcc/gcc.c --output gcc/gcc.c --match-on '/usr/lib/' --replace-with '${tinycc.libs}/lib/'
 
   # Configure
   export CC="tcc -B ${tinycc.libs}/lib -D __GLIBC_MINOR__=6"
@@ -103,8 +102,7 @@ bash.runCommand "${pname}-${version}" {
   make \
     LIBGCC2_INCLUDES="-I ${mes-libc}/include" \
     LANGUAGES=c \
-    BOOT_LDFLAGS=" -B ${tinycc.libs}/lib" \
-    includedir=${mes-libc}/include
+    BOOT_LDFLAGS=" -B ${tinycc.libs}/lib"
 
   # Install
   make install

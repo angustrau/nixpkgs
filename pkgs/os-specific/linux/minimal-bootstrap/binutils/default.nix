@@ -4,7 +4,6 @@
 , targetPlatform
 , fetchurl
 , bash
-, tinycc
 , gnumake
 , gnupatch
 , gnugrep
@@ -12,9 +11,13 @@
 , gawk
 , bzip2
 , heirloom
+, mesBootstrap ? false, tinycc ? null
+, gcc ? null, glibc ? null, binutils ? null, linuxHeaders
 }:
+assert mesBootstrap -> tinycc != null;
+assert !mesBootstrap -> gcc != null && glibc != null && binutils != null;
 let
-  pname = "binutils";
+  pname = "binutils" + lib.optionalString mesBootstrap "-mes";
   version = "2.20.1";
   rev = "a";
 
@@ -80,7 +83,7 @@ bash.runCommand "${pname}-${version}" {
   inherit pname version;
 
   nativeBuildInputs = [
-    tinycc.compiler
+    (if mesBootstrap then tinycc.compiler else gcc)
     gnumake
     gnupatch
     gnugrep
@@ -88,7 +91,7 @@ bash.runCommand "${pname}-${version}" {
     gawk
     bzip2
     heirloom.sed
-  ];
+  ] ++ lib.optional (!mesBootstrap) binutils;
 
   passthru.tests.get-version = result:
     bash.runCommand "${pname}-get-version-${version}" {} ''
@@ -117,8 +120,16 @@ bash.runCommand "${pname}-${version}" {
   echo 'NATIVE_LIB_DIRS=' >> ld/configure.tgt
 
   # Configure
-  export CC="tcc -B ${tinycc.libs}/lib -D __GLIBC_MINOR__=6 -D MES_BOOTSTRAP=1"
-  export AR="tcc -ar"
+  ${if mesBootstrap then ''
+    export CC="tcc -B ${tinycc.libs}/lib -D __GLIBC_MINOR__=6 -D MES_BOOTSTRAP=1"
+    export AR="tcc -ar"
+  '' else ''
+    export CC="gcc -B ${glibc}/lib -I${glibc}/include -I${linuxHeaders}/include"
+    export CPP="gcc -E -I${glibc}/include -I${linuxHeaders}/include"
+    export AR="ar"
+    export LIBRARY_PATH="${glibc}/lib"
+    export LIBS="-lc -lnss_files -lnss_dns -lresolv"
+  ''}
   export SED=sed
   bash ./configure ${lib.concatStringsSep " " configureFlags}
 

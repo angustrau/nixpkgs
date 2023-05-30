@@ -16,9 +16,16 @@ lib.makeScope
 
     bash_2_05 = callPackage ./bash/2.nix { tinycc = tinycc-mes; };
 
+    binutils = callPackage ./binutils {
+      bash = bash_2_05;
+      gcc = gcc2;
+      binutils = binutils-mes;
+      glibc = glibc22;
+    };
     binutils-mes = callPackage ./binutils {
       bash = bash_2_05;
       tinycc = tinycc-mes;
+      mesBootstrap = true;
     };
 
     bzip2 = callPackage ./bzip2 {
@@ -107,6 +114,7 @@ lib.makeScope
 
     test = kaem.runCommand "minimal-bootstrap-test" {} ''
       echo ${bash_2_05.tests.get-version}
+      echo ${binutils.tests.get-version}
       echo ${binutils-mes.tests.get-version}
       echo ${bzip2.tests.get-version}
       echo ${gawk.tests.get-version}

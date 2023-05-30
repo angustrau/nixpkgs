@@ -30,6 +30,13 @@ let
   };
 
   patches = [
+    # This patch enables building gcc-2.95.3 using TCC and Mes C Library.
+    #   * Disable building DOC
+    #   * Avoid running `fixproto'.
+    #   * Force running `fixinc'.
+    #   * Replace Makefile trickery of creating an libgcc1.a archive, then
+    #     extracting the .o files later to create a new libgcc2.a archive.
+    #     Instead, keep temporary .o files.
     (fetchurl {
       url = "https://git.savannah.gnu.org/cgit/guix.git/plain/gnu/packages/patches/gcc-boot-2.95.3.patch?id=50249cab3a98839ade2433456fe618acc6f804a5";
       sha256 = "03l3jaxch6d76mx4zkn6ky64paj58jk0biddck01qd4bnw9z8hiw";

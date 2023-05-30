@@ -112,7 +112,7 @@ bash.runCommand "${pname}-${version}" {
   cd binutils-${version}
 
   # Patch
-  ${lib.concatLines (map (f: "patch -Np1 -i ${f}") patches)}
+  ${lib.concatMapStringsSep "\n" (f: "patch -Np1 -i ${f}") patches}
   # Clear the default library search path.
   echo 'NATIVE_LIB_DIRS=' >> ld/configure.tgt
 

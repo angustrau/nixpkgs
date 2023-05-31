@@ -32,7 +32,7 @@ bash.runCommand "${pname}-${version}" {
   # Unpack
   cp ${src} linux-headers.tar.xz
   # suppress warning. "Cannot set the file group: sterror: unknown error"
-  unxz linux-headers.tar.xz || true
+  unxz linux-headers.tar.xz
   tar xf linux-headers.tar
 
   # Install

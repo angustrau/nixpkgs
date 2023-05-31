@@ -10,12 +10,12 @@
 
 int fchmod (int fd, int mode)
 {
-  return -1;
+  return 0;
 }
 
 int fchown (int fd, int owner, int group)
 {
-  return -1;
+  return 0;
 }
 
 #include <signal.h>

@@ -38,6 +38,7 @@ lib.makeScope
     gawk = callPackage ./gawk {
       bash = bash_2_05;
       tinycc = tinycc-mes;
+      gnused = gnused-mes;
     };
 
     gcc2 = callPackage ./gcc/2.nix {
@@ -55,6 +56,7 @@ lib.makeScope
 
     inherit (callPackage ./glibc {
       bash = bash_2_05;
+      gnused = gnused-mes;
     }) glibc22;
 
     gnugrep = callPackage ./gnugrep {
@@ -68,17 +70,26 @@ lib.makeScope
 
     gnused = callPackage ./gnused {
       bash = bash_2_05;
+      gcc = gcc2;
+      glibc = glibc22;
+      gnused = gnused-mes;
+    };
+    gnused-mes = callPackage ./gnused {
+      bash = bash_2_05;
       tinycc = tinycc-mes;
+      mesBootstrap = true;
     };
 
     gnutar = callPackage ./gnutar {
       bash = bash_2_05;
       tinycc = tinycc-mes;
+      gnused = gnused-mes;
     };
 
     gzip = callPackage ./gzip {
       bash = bash_2_05;
       tinycc = tinycc-mes;
+      gnused = gnused-mes;
     };
 
     heirloom = callPackage ./heirloom {
@@ -120,6 +131,7 @@ lib.makeScope
       echo ${gcc2-mes.tests.get-version}
       echo ${gnugrep.tests.get-version}
       echo ${gnused.tests.get-version}
+      echo ${gnused-mes.tests.get-version}
       echo ${gnutar.tests.get-version}
       echo ${gzip.tests.get-version}
       echo ${heirloom.tests.get-version}

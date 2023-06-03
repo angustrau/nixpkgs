@@ -1,6 +1,6 @@
 { lib, stdenv, fetchFromGitHub, fetchpatch, valgrind
 , enableStatic ? stdenv.hostPlatform.isStatic
-, enableShared ? !stdenv.hostPlatform.isStatic
+, enableShared ? !stdenv.hostPlatform.isStatic && !stdenv.hostPlatform.isSerenity
 }:
 
 stdenv.mkDerivation rec {

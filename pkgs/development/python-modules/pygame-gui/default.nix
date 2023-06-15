@@ -2,24 +2,23 @@
 , pkgs
 , buildPythonPackage
 , fetchFromGitHub
-, pygame
+, pygame-ce
 , python-i18n
 , pytestCheckHook
 }:
 
 buildPythonPackage rec {
   pname = "pygame-gui";
-  version = "068";
-  # nixpkgs-update: no auto update
+  version = "0.6.9";
 
   src = fetchFromGitHub {
     owner = "MyreMylar";
     repo = "pygame_gui";
-    rev = "refs/tags/v_${version}";
-    hash = "sha256-BCgSCOnuIqjpROpEtkzkvIXK7dIO0dNYsPmQSwXfmTQ=";
+    rev = "v_${lib.replaceStrings ["."] [""] version}";
+    sha256 = "IXU00Us1odbfS7jLPMYuCPv2l/5TUZdYKES7xHs+EWg=";
   };
 
-  propagatedBuildInputs = [ pygame python-i18n ];
+  propagatedBuildInputs = [ pygame-ce python-i18n ];
 
   postPatch = ''
     substituteInPlace pygame_gui/core/utility.py \

@@ -27270,6 +27270,7 @@ with pkgs;
       inherit (stdenv.buildPlatform) system;
     };
     checkMeta = callPackage ../stdenv/generic/check-meta.nix { };
+    cheatingPkgs = pkgs;
   });
 
   mingetty = callPackage ../os-specific/linux/mingetty { };

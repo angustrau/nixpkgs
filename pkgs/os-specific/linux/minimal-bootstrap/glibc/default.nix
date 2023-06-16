@@ -3,7 +3,7 @@
 , hostPlatform
 , fetchurl
 , bash
-, gcc2, gcc2-mes
+, gcc2-mes
 , gnumake
 , gnupatch
 , gnused

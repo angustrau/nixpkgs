@@ -33524,6 +33524,8 @@ with pkgs;
 
   opentx = libsForQt5.callPackage ../applications/misc/opentx { };
 
+  openutau = callPackage ../applications/audio/openutau { };
+
   openvi = darwin.apple_sdk_11_0.callPackage ../applications/editors/openvi { };
 
   opera = callPackage ../applications/networking/browsers/opera { };

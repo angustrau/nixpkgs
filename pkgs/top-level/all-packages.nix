@@ -37059,6 +37059,10 @@ with pkgs;
   minetestclient = minetestclient_5;
   minetestserver = minetestserver_5;
 
+  minosoft = callPackage ../games/minosoft {
+    jdk = jdk.override { enableJavaFX = true; };
+  };
+
   mnemosyne = callPackage ../games/mnemosyne {
     python = python3;
   };

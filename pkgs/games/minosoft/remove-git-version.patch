@@ -1,0 +1,66 @@
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 8f81d8f57..4c489d0d8 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -14,9 +14,6 @@
+ import de.bixilon.kutil.os.Architectures
+ import de.bixilon.kutil.os.OSTypes
+ import de.bixilon.kutil.os.PlatformInfo
+-import org.ajoberstar.grgit.Commit
+-import org.ajoberstar.grgit.Grgit
+-import org.ajoberstar.grgit.operation.LogOp
+ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+ import org.gradle.api.tasks.testing.logging.TestLogEvent
+ import org.gradle.configurationcache.extensions.capitalized
+@@ -29,7 +26,6 @@ plugins {
+     kotlin("jvm") version "1.9.0-Beta"
+     `jvm-test-suite`
+     application
+-    id("org.ajoberstar.grgit.service") version "5.2.0"
+     id("com.github.ben-manes.versions") version "0.47.0"
+ }
+ 
+@@ -398,28 +394,6 @@ tasks.test {
+     useJUnitPlatform()
+ }
+ 
+-lateinit var git: Grgit
+-lateinit var commit: Commit
+-
+-fun loadGit() {
+-    git = Grgit.open(mapOf("currentDir" to project.rootDir))
+-    commit = git.log { LogOp(git.repository).apply { maxCommits = 1 } }.first()
+-    val tag = git.tag.list().find { it.commit == commit }
+-    var nextVersion = if (tag != null) {
+-        stable = true
+-        tag.name
+-    } else {
+-        commit.abbreviatedId
+-    }
+-    if (!git.status().isClean) {
+-        nextVersion += "-dirty"
+-    }
+-    if (project.version != nextVersion) {
+-        project.version = nextVersion
+-        logger.info("Version changed to ${project.version}")
+-    }
+-}
+-loadGit()
+ 
+ 
+ val versionJsonTask = tasks.register("versionJson") {
+@@ -428,10 +402,10 @@ val versionJsonTask = tasks.register("versionJson") {
+     doFirst {
+         fun generateGit(): Map<String, Any> {
+             return mapOf(
+-                "branch" to git.branch.current().name,
+-                "commit" to commit.id,
+-                "commit_short" to commit.abbreviatedId,
+-                "dirty" to !git.status().isClean,
++                "branch" to "@version@",
++                "commit" to "@rev@",
++                "commit_short" to "@rev_short@",
++                "dirty" to false,
+             )
+         }
+ 

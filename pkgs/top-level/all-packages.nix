@@ -33717,6 +33717,8 @@ with pkgs;
 
   parlatype = callPackage ../applications/audio/parlatype { };
 
+  pat = callPackage ../applications/radio/pat { };
+
   packet = callPackage ../development/tools/packet { };
 
   packet-sd = callPackage ../development/tools/packet-sd { };

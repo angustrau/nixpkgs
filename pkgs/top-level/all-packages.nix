@@ -33426,6 +33426,8 @@ with pkgs;
 
   opsdroid = callPackage ../applications/networking/opsdroid { };
 
+  orbstack = callPackage ../applications/virtualization/orbstack { };
+
   oroborus = callPackage ../applications/window-managers/oroborus { };
 
   osm2pgsql = callPackage ../tools/misc/osm2pgsql { };

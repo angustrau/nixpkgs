@@ -48,6 +48,8 @@ in mkDerivation {
 
   outputs = [ "out" "dev" ];
 
+  env.NIX_CFLAGS_COMPILE = "-Wno-register";
+
   buildInputs = [
     logLib
     mpir

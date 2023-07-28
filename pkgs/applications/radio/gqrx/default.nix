@@ -1,4 +1,5 @@
 { lib
+, stdenv
 , fetchFromGitHub
 , cmake
 , pkg-config
@@ -13,10 +14,12 @@
 , libjack2
 , wrapGAppsHook
 , wrapQtAppsHook
+, sigtool
+, cctools
 # drivers (optional):
 , rtl-sdr
 , hackrf
-, pulseaudioSupport ? true, libpulseaudio
+, pulseaudioSupport ? !stdenv.isDarwin, libpulseaudio
 , portaudioSupport ? false, portaudio
 }:
 
@@ -25,6 +28,11 @@ assert portaudioSupport -> portaudio != null;
 # audio backends are mutually exclusive
 assert !(pulseaudioSupport && portaudioSupport);
 
+let
+  entitlements = builtins.toFile "Entitlements.plist" (lib.generators.toPlist {} {
+    "com.apple.security.cs.allow-unsigned-executable-memory" = true;
+  });
+in
 gnuradioMinimal.pkgs.mkDerivation rec {
   pname = "gqrx";
   version = "2.16";
@@ -41,20 +49,21 @@ gnuradioMinimal.pkgs.mkDerivation rec {
     pkg-config
     wrapQtAppsHook
     wrapGAppsHook
-  ];
+  ] ++ lib.optional stdenv.isDarwin sigtool;
   buildInputs = [
     gnuradioMinimal.unwrapped.logLib
     mpir
     fftwFloat
-    alsa-lib
     libjack2
     gnuradioMinimal.unwrapped.boost
     qtbase
     qtsvg
-    qtwayland
     gnuradioMinimal.pkgs.osmosdr
     rtl-sdr
     hackrf
+  ] ++ lib.optionals stdenv.isLinux [
+    alsa-lib
+    qtwayland
   ] ++ lib.optionals (gnuradioMinimal.hasFeature "gr-ctrlport") [
     thrift
     gnuradioMinimal.unwrapped.python.pkgs.thrift
@@ -63,6 +72,7 @@ gnuradioMinimal.pkgs.mkDerivation rec {
 
   cmakeFlags =
     let
+      platform = if stdenv.isDarwin then "OSX" else "LINUX";
       audioBackend =
         if pulseaudioSupport
         then "Pulseaudio"
@@ -70,13 +80,16 @@ gnuradioMinimal.pkgs.mkDerivation rec {
         then "Portaudio"
         else "Gr-audio";
     in [
-      "-DLINUX_AUDIO_BACKEND=${audioBackend}"
+      "-D${platform}_AUDIO_BACKEND=${audioBackend}"
     ];
 
    # Prevent double-wrapping, inject wrapper args manually instead.
   dontWrapGApps = true;
   preFixup = ''
     qtWrapperArgs+=("''${gappsWrapperArgs[@]}")
+  '' + lib.optionalString stdenv.isDarwin ''
+    CODESIGN_ALLOCATE="${cctools}/bin/${cctools.targetPrefix}codesign_allocate" \
+      codesign --force --entitlements ${entitlements} --sign - $out/bin/gqrx
   '';
 
   meta = with lib; {
@@ -91,7 +104,7 @@ gnuradioMinimal.pkgs.mkDerivation rec {
     # Some of the code comes from the Cutesdr project, with a BSD license, but
     # it's currently unknown which version of the BSD license that is.
     license = licenses.gpl3Plus;
-    platforms = platforms.linux;  # should work on Darwin / macOS too
+    platforms = platforms.unix;  # should work on Darwin / macOS too
     maintainers = with maintainers; [ bjornfor fpletz ];
   };
 }

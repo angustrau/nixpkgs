@@ -31462,12 +31462,14 @@ with pkgs;
 
   gpx = callPackage ../applications/misc/gpx { };
 
-  gqrx = qt6Packages.callPackage ../applications/radio/gqrx { };
-  gqrx-portaudio = qt6Packages.callPackage ../applications/radio/gqrx {
+  gqrx = qt6Packages.callPackage ../applications/radio/gqrx {
+    inherit (darwin) sigtool cctools;
+  };
+  gqrx-portaudio = gqrx.override {
     portaudioSupport = true;
     pulseaudioSupport = false;
   };
-  gqrx-gr-audio = qt6Packages.callPackage ../applications/radio/gqrx {
+  gqrx-gr-audio = gqrx.override {
     portaudioSupport = false;
     pulseaudioSupport = false;
   };

@@ -4,13 +4,14 @@
 , hostPlatform
 , fetchurl
 , checkMeta
+, cheatingPkgs
 }:
 
 lib.makeScope
   # Prevent using top-level attrs to protect against introducing dependency on
   # non-bootstrap packages by mistake. Any top-level inputs must be explicitly
   # declared here.
-  (extra: lib.callPackageWith ({ inherit lib config buildPlatform hostPlatform fetchurl checkMeta; } // extra))
+  (extra: lib.callPackageWith ({ inherit lib config buildPlatform hostPlatform fetchurl checkMeta cheatingPkgs; } // extra))
   (self: with self; {
 
     bash_2_05 = callPackage ./bash/2.nix { tinycc = tinycc-mes; };
@@ -91,11 +92,20 @@ lib.makeScope
       gawk = gawk-mes;
     };
 
-    inherit (callPackage ./glibc {
+    glibc22 = callPackage ./glibc/2.2.nix {
       bash = bash_2_05;
+      gcc = gcc2-mes;
+      binutils = binutils-mes;
       gnused = gnused-mes;
       gawk = gawk-mes;
-    }) glibc22;
+    };
+    glibc216 = callPackage ./glibc/2.16.nix {
+      gcc = gcc46;
+      headers = glibc216-headers;
+    };
+    glibc216-headers = callPackage ./glibc/headers.nix {
+      gcc = gcc46;
+    };
 
     gnugrep = callPackage ./gnugrep {
       bash = bash_2_05;

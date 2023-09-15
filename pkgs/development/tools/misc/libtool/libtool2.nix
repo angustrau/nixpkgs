@@ -1,6 +1,7 @@
 { lib, stdenv, fetchurl, fetchpatch, m4
 , runtimeShell
 , file
+, withPrefix ? false
 }:
 
 # Note: this package is used for bootstrapping fetchurl, and thus
@@ -33,6 +34,8 @@ stdenv.mkDerivation rec {
     # avoid help2man run after 'libtoolize.in' update
     touch doc/libtoolize.1
   '';
+
+  configureFlags = lib.optional withPrefix "--program-prefix=g";
 
   strictDeps = true;
   # As libtool is an early bootstrap dependency try hard not to

@@ -30,6 +30,12 @@ lib.makeScope
       gnutar = gnutar-musl;
     };
 
+    busybox-static = callPackage ./busybox/static.nix {
+      gcc = gcc-latest;
+      gnumake = gnumake-musl;
+      gnutar = gnutar-latest;
+    };
+
     bzip2 = callPackage ./bzip2 {
       bash = bash_2_05;
       tinycc = tinycc-musl;
@@ -207,6 +213,7 @@ lib.makeScope
       echo ${bash.tests.get-version}
       echo ${bash_2_05.tests.get-version}
       echo ${binutils.tests.get-version}
+      echo ${busybox-static.tests.get-version}
       echo ${bzip2.tests.get-version}
       echo ${coreutils-musl.tests.get-version}
       echo ${diffutils.tests.get-version}

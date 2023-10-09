@@ -1,6 +1,7 @@
 { lib
 , fetchurl
 , bash
+, gnumake
 , gnutar
 , xz
 }:
@@ -13,20 +14,23 @@ let
   # features, and being up-to-date, are very loose.
   #
   # Rebuilding the Linux headers from source correctly is something we can defer
-  # till we have access to gcc/binutils/perl. For now we can use Guix's assembled
+  # till we have access to gcc/binutils/perl. For now we can use an assembled
   # kernel header distribution and assume it's good enough.
+  #
+  # Sabotage Linux's kernel headers have been modified to be musl compatible
   pname = "linux-headers";
-  version = "4.14.67";
+  version = "4.19.88-2";
 
   src = fetchurl {
-    url = "mirror://gnu/gnu/guix/bootstrap/i686-linux/20190815/linux-libre-headers-stripped-4.14.67-i686-linux.tar.xz";
-    sha256 = "0sm2z9x4wk45bh6qfs94p0w1d6hsy6dqx9sw38qsqbvxwa1qzk8s";
+    url = "https://github.com/sabotage-linux/kernel-headers/releases/download/v${version}/linux-headers-${version}.tar.xz";
+    hash = "sha256-3Hq/c0SHVTZEJYo4Is/UKddGVnSeMJ8rJfCfQoLgVYg=";
   };
 in
 bash.runCommand "${pname}-${version}" {
   inherit pname version;
 
   nativeBuildInputs = [
+    gnumake
     gnutar
     xz
   ];
@@ -35,15 +39,13 @@ bash.runCommand "${pname}-${version}" {
     description = "Header files and scripts for Linux kernel";
     license = licenses.gpl2;
     maintainers = teams.minimal-bootstrap.members;
-    platforms = platforms.linux;
+    platforms = [ "i686-linux" ];
   };
 } ''
   # Unpack
-  cp ${src} linux-headers.tar.xz
-  unxz linux-headers.tar.xz
-  tar xf linux-headers.tar
+  tar xf ${src}
+  cd linux-headers-${version}
 
   # Install
-  mkdir $out
-  cp -r include $out
+  make ARCH=x86 prefix=$out install
 ''

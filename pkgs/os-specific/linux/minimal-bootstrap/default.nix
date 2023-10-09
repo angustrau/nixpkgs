@@ -126,6 +126,12 @@ lib.makeScope
       tinycc = tinycc-mes;
     };
 
+    gnum4 = callPackage ./gnum4 {
+      gcc = gcc-latest;
+      gnumake = gnumake-musl;
+      gnutar = gnutar-latest;
+    };
+
     gnumake = callPackage ./gnumake { tinycc = tinycc-mes; };
 
     gnumake-musl = callPackage ./gnumake/musl.nix {
@@ -256,6 +262,7 @@ lib.makeScope
       echo ${gcc8.tests.hello-world}
       echo ${gcc-latest.tests.hello-world}
       echo ${gnugrep.tests.get-version}
+      echo ${gnum4.tests.get-version}
       echo ${gnused.tests.get-version}
       echo ${gnused-mes.tests.get-version}
       echo ${gnutar.tests.get-version}

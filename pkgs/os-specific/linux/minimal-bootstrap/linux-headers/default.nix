@@ -1,36 +1,40 @@
 { lib
 , fetchurl
 , bash
+, gcc
+, musl
+, binutils
 , gnumake
+, gnused
+, gnugrep
+, gawk
+, diffutils
+, findutils
 , gnutar
 , xz
 }:
 let
-  # WARNING: You probably don't want to use this package outside minimal-bootstrap
-  #
-  # We need some set of Linux kernel headers to build our bootstrap packages
-  # (gcc/binutils/glibc etc.) against. As long as it compiles it is "good enough".
-  # Therefore the requirement for correctness, completeness, platform-specific
-  # features, and being up-to-date, are very loose.
-  #
-  # Rebuilding the Linux headers from source correctly is something we can defer
-  # till we have access to gcc/binutils/perl. For now we can use an assembled
-  # kernel header distribution and assume it's good enough.
-  #
-  # Sabotage Linux's kernel headers have been modified to be musl compatible
   pname = "linux-headers";
-  version = "4.19.88-2";
+  version = "6.5.6";
 
   src = fetchurl {
-    url = "https://github.com/sabotage-linux/kernel-headers/releases/download/v${version}/linux-headers-${version}.tar.xz";
-    hash = "sha256-3Hq/c0SHVTZEJYo4Is/UKddGVnSeMJ8rJfCfQoLgVYg=";
+    url = "mirror://kernel/linux/kernel/v${lib.versions.major version}.x/linux-${version}.tar.xz";
+    hash = "sha256-eONtQhRUcFHCTfIUD0zglCjWxRWtmnGziyjoCUqV0vY=";
   };
 in
 bash.runCommand "${pname}-${version}" {
   inherit pname version;
 
   nativeBuildInputs = [
+    gcc
+    musl
+    binutils
     gnumake
+    gnused
+    gnugrep
+    gawk
+    diffutils
+    findutils
     gnutar
     xz
   ];
@@ -44,8 +48,13 @@ bash.runCommand "${pname}-${version}" {
 } ''
   # Unpack
   tar xf ${src}
-  cd linux-headers-${version}
+  cd linux-${version}
+
+  # Build
+  make -j $NIX_BUILD_CORES CC=musl-gcc HOSTCC=musl-gcc ARCH=x86 headers
 
   # Install
-  make ARCH=x86 prefix=$out install
+  find usr/include -name '.*' -exec rm {} +
+  mkdir -p $out
+  cp -rv usr/include $out/
 ''

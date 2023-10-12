@@ -91,5 +91,6 @@ bash.runCommand "${pname}-${version}" {
   make -j $NIX_BUILD_CORES
 
   # Install
-  make -j $NIX_BUILD_CORES install INSTALL_UNCOMPRESSED=yes
+  make -j $NIX_BUILD_CORES INSTALL_UNCOMPRESSED=yes install
+  find $out/{bin,sbin,lib,libexec} -type f -exec strip --strip-unneeded {} + || true
 ''

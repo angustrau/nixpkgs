@@ -48,6 +48,27 @@ lib.makeScope
       gnutar = gnutar-latest;
     };
 
+    bootstrap-tools = import ./bootstrap-tools {
+      inherit lib;
+      inherit (bash) runCommand;
+      libc = musl-final;
+      bash = bash-static;
+      binutils = binutils-static;
+      bzip2 = bzip2-static;
+      coreutils = coreutils-static;
+      diffutils = diffutils-static;
+      findutils = findutils-static;
+      gawk = gawk-static;
+      gcc = gcc-final;
+      gnugrep = gnugrep-static;
+      gnumake = gnumake-static;
+      gnused = gnused-static;
+      gnutar = gnutar-static;
+      gzip = gzip-static;
+      patch = patch-static;
+      patchelf = patchelf-static;
+    };
+
     busybox-static = callPackage ./busybox/static.nix {
       gcc = gcc-latest;
       gnumake = gnumake-musl;
@@ -157,7 +178,35 @@ lib.makeScope
       gawk = gawk-mes;
     };
 
+    gcc-final = callPackage ./gcc/final.nix {
+      gcc = gcc-latest;
+      gnumake = gnumake-musl;
+      gnutar = gnutar-latest;
+      gawk = gawk-static;
+      musl = musl-final;
+    };
+
+    gcc-latest-glibc = callPackage ./gcc/latest-glibc.nix {
+      gcc = gcc-test;
+      # gcc = gcc-latest;
+      binutils = binutils-static;
+      gnumake = gnumake-musl;
+      gnutar = gnutar-latest;
+      gawk = gawk-static;
+      # gawk = gawk-mes;
+      gnused = gnused-static;
+      gnugrep = gnugrep-static;
+    };
+
     glibc = callPackage ./glibc {
+      gcc = gcc-latest;
+      gnumake = gnumake-musl;
+      gnutar = gnutar-latest;
+      gnugrep = gnugrep-static;
+      gawk = gawk-static;
+    };
+
+    glibc-headers = callPackage ./glibc/headers.nix {
       gcc = gcc-latest;
       gnumake = gnumake-musl;
       gnutar = gnutar-latest;
@@ -272,6 +321,12 @@ lib.makeScope
 
     ln-boot = callPackage ./ln-boot { };
 
+    lndir = callPackage ./lndir {
+      gcc = gcc-latest;
+      gnumake = gnumake-musl;
+      gnutar = gnutar-latest;
+    };
+
     mes = lib.recurseIntoAttrs (callPackage ./mes { });
     mes-libc = callPackage ./mes/libc.nix { };
 
@@ -284,6 +339,12 @@ lib.makeScope
     musl = callPackage ./musl {
       gcc = gcc46;
       gnumake = gnumake-musl;
+    };
+
+    musl-final = callPackage ./musl/final.nix {
+      gcc = gcc-latest;
+      gnumake = gnumake-musl;
+      gnutar = gnutar-latest;
     };
 
     patchelf-static = callPackage ./patchelf/static.nix {

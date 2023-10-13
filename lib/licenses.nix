@@ -817,6 +817,11 @@ in mkLicense lset) ({
     fullName = "Enlightenment License (e16)";
   };
 
+  mitOpenGroup = {
+    spdxId = "MIT-open-group";
+    fullName = "MIT Open Group variant";
+  };
+
   mit0 = {
     spdxId = "MIT-0";
     fullName = "MIT No Attribution";

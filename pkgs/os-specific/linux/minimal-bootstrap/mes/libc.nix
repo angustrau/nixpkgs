@@ -1,4 +1,5 @@
 { lib
+, callPackage
 , kaem
 , ln-boot
 , mes
@@ -8,7 +9,8 @@ let
   pname = "mes-libc";
   inherit (mes.compiler) version;
 
-  sources = (import ./sources.nix).x86.linux.gcc;
+  inherit (callPackage ./platforms.nix {}) mesArch;
+  sources = (import ./sources.nix).${mesArch}.linux.gcc;
   inherit (sources) libtcc1_SOURCES libc_gnu_SOURCES;
 
   # Concatenate all source files into a convenient bundle
@@ -25,29 +27,29 @@ kaem.runCommand "${pname}-${version}" {
 
   nativeBuildInputs = [ ln-boot ];
 
-  passthru.CFLAGS = "-DHAVE_CONFIG_H=1 -I${mes-libc}/include -I${mes-libc}/include/linux/x86";
+  passthru.CFLAGS = "-DHAVE_CONFIG_H=1 -I${mes-libc}/include -I${mes-libc}/include/linux/${mesArch}";
 
   meta = with lib; {
     description = "The Mes C Library";
     homepage = "https://www.gnu.org/software/mes";
     license = licenses.gpl3Plus;
     maintainers = teams.minimal-bootstrap.members;
-    platforms = [ "i686-linux" ];
+    platforms = [ "i686-linux" "x86_64-linux" ];
   };
 } ''
   cd ${mes.srcPrefix}
 
   # mescc compiled libc.a
-  mkdir -p ''${out}/lib/x86-mes
+  mkdir -p ''${out}/lib/${mesArch}-mes
 
   # libc.c
   catm ''${TMPDIR}/first.c ${lib.concatStringsSep " " firstLibc}
   catm ''${out}/lib/libc.c ''${TMPDIR}/first.c ${lib.concatStringsSep " " lastLibc}
 
   # crt{1,n,i}.c
-  cp lib/linux/x86-mes-gcc/crt1.c ''${out}/lib
-  cp lib/linux/x86-mes-gcc/crtn.c ''${out}/lib
-  cp lib/linux/x86-mes-gcc/crti.c ''${out}/lib
+  cp lib/linux/${mesArch}-mes-gcc/crt1.c ''${out}/lib
+  cp lib/linux/${mesArch}-mes-gcc/crtn.c ''${out}/lib
+  cp lib/linux/${mesArch}-mes-gcc/crti.c ''${out}/lib
 
   # libtcc1.c
   catm ''${out}/lib/libtcc1.c ${lib.concatStringsSep " " libtcc1_SOURCES}

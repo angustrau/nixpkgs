@@ -13,11 +13,13 @@
 
 let
   pname = "mes";
-  version = "0.24.2";
+  # from the wip-x86_64 branch
+  version = "unstable-2023-09-12";
+  rev = "0b5053e4b7af98bc7bec818ed1336530b85aa317";
 
   src = fetchurl {
-    url = "mirror://gnu/mes/mes-${version}.tar.gz";
-    sha256 = "0vp8v88zszh1imm3dvdfi3m8cywshdj7xcrsq4cgmss69s2y1nkx";
+    url = "https://git.savannah.gnu.org/cgit/mes.git/snapshot/mes-${rev}.tar.gz";
+    hash = "sha256-gjEK2Yh2ZCdg1jhqrvBpLcCalIjgwx/T43RP1bNOCOI=";
   };
 
   nyacc = callPackage ./nyacc.nix { inherit nyacc; };
@@ -27,18 +29,19 @@ let
     #define MES_VERSION "${version}"
   '';
 
-  sources = (import ./sources.nix).x86.linux.mescc;
+  inherit (callPackage ./platforms.nix {}) mesArch;
+  sources = (import ./sources.nix).${mesArch}.linux.mescc;
   inherit (sources) libc_mini_SOURCES libmescc_SOURCES libc_SOURCES mes_SOURCES;
 
   # add symlink() to libc+tcc so we can use it in ln-boot
-  libc_tcc_SOURCES = sources.libc_tcc_SOURCES ++ [ "lib/linux/symlink.c" ];
+  libc_tcc_SOURCES = sources.libc_tcc_SOURCES ++ [ "lib/linux/symlink.c" "lib/stdlib/abort.c" ];
 
   meta = with lib; {
     description = "Scheme interpreter and C compiler for bootstrapping";
     homepage = "https://www.gnu.org/software/mes";
     license = licenses.gpl3Plus;
     maintainers = teams.minimal-bootstrap.members;
-    platforms = [ "i686-linux" ];
+    platforms = [ "i686-linux" "x86_64-linux" ];
   };
 
   srcPost = kaem.runCommand "${pname}-src-${version}" {
@@ -51,15 +54,15 @@ let
     cd ''${out}
     untar --non-strict --file ''${NIX_BUILD_TOP}/mes.tar # ignore symlinks
 
-    MES_PREFIX=''${out}/mes-${version}
+    MES_PREFIX=''${out}/mes-${rev}
 
     cd ''${MES_PREFIX}
 
     cp ${config_h} include/mes/config.h
 
     mkdir include/arch
-    cp include/linux/x86/syscall.h include/arch/syscall.h
-    cp include/linux/x86/kernel-stat.h include/arch/kernel-stat.h
+    cp include/linux/${mesArch}/syscall.h include/arch/syscall.h
+    cp include/linux/${mesArch}/kernel-stat.h include/arch/kernel-stat.h
 
     # Remove pregenerated files
     rm mes/module/mes/psyntax.pp mes/module/mes/psyntax.pp.header
@@ -67,11 +70,6 @@ let
     # These files are symlinked in the repo
     cp mes/module/srfi/srfi-9-struct.mes mes/module/srfi/srfi-9.mes
     cp mes/module/srfi/srfi-9/gnu-struct.mes mes/module/srfi/srfi-9/gnu.mes
-
-    # Fixes to support newer M2-Planet
-    catm x86_defs.M1 ${m2libc}/x86/x86_defs.M1 lib/m2/x86/x86_defs.M1
-    cp x86_defs.M1 lib/m2/x86/x86_defs.M1
-    rm x86_defs.M1
 
     # Remove environment impurities
     __GUILE_LOAD_PATH="\"''${MES_PREFIX}/mes/module:''${MES_PREFIX}/module:${nyacc.guilePath}\""
@@ -103,20 +101,18 @@ let
     replace --file ''${mescc_in} --output ''${mescc_in} --match-on "(getenv \"libdir\")" --replace-with "\"''${MES_PREFIX}/lib\""
     replace --file ''${mescc_in} --output ''${mescc_in} --match-on @prefix@ --replace-with ''${MES_PREFIX}
     replace --file ''${mescc_in} --output ''${mescc_in} --match-on @VERSION@ --replace-with ${version}
-    replace --file ''${mescc_in} --output ''${mescc_in} --match-on @mes_cpu@ --replace-with x86
+    replace --file ''${mescc_in} --output ''${mescc_in} --match-on @mes_cpu@ --replace-with ${mesArch}
     replace --file ''${mescc_in} --output ''${mescc_in} --match-on @mes_kernel@ --replace-with linux
     mkdir -p ''${bin}/bin
     cp ''${mescc_in} ''${bin}/bin/mescc.scm
 
     # Build mes-m2
-    mes_cpu=x86
-    stage0_cpu=x86
-    kaem --verbose --strict --file kaem.run
+    kaem --verbose --strict --file kaem.${mesArch}
     cp bin/mes-m2 ''${bin}/bin/mes-m2
     chmod 555 ''${bin}/bin/mes-m2
   '';
 
-  srcPrefix = "${srcPost.out}/mes-${version}";
+  srcPrefix = "${srcPost.out}/mes-${rev}";
 
   cc = "${srcPost.bin}/bin/mes-m2";
   ccArgs = [
@@ -125,7 +121,7 @@ let
     "--"
     "-D" "HAVE_CONFIG_H=1"
     "-I" "${srcPrefix}/include"
-    "-I" "${srcPrefix}/include/linux/x86"
+    "-I" "${srcPrefix}/include/linux/${mesArch}"
   ];
 
   CC = toString ([ cc ] ++ ccArgs);
@@ -142,7 +138,7 @@ let
     ${CC} -c ${srcPrefix}/${source}
   '';
 
-  crt1 = compile "/lib/linux/x86-mes-mescc/crt1.c";
+  crt1 = compile "/lib/linux/${mesArch}-mes-mescc/crt1.c";
 
   getRes = suffix: res: "${res}/${res.name}${suffix}";
 
@@ -177,6 +173,7 @@ let
       ${result}/bin/mes --version
       mkdir ''${out}
     '';
+    passthru.prefix = "${placeholder "out"}/lib/${mesArch}-mes";
 
     inherit meta;
   }
@@ -184,27 +181,27 @@ let
     LIBDIR=''${out}/lib
     mkdir -p ''${out} ''${LIBDIR}
 
-    mkdir -p ''${LIBDIR}/x86-mes
+    mkdir -p ''${LIBDIR}/${mesArch}-mes
 
     # crt1.o
-    cp ${crt1}/crt1.o ''${LIBDIR}/x86-mes
-    cp ${crt1}/crt1.s ''${LIBDIR}/x86-mes
+    cp ${crt1}/crt1.o ''${LIBDIR}/${mesArch}-mes
+    cp ${crt1}/crt1.s ''${LIBDIR}/${mesArch}-mes
 
     # libc-mini.a
-    cp ${libc-mini}/lib/libc-mini.a ''${LIBDIR}/x86-mes
-    cp ${libc-mini}/lib/libc-mini.s ''${LIBDIR}/x86-mes
+    cp ${libc-mini}/lib/libc-mini.a ''${LIBDIR}/${mesArch}-mes
+    cp ${libc-mini}/lib/libc-mini.s ''${LIBDIR}/${mesArch}-mes
 
     # libmescc.a
-    cp ${libmescc}/lib/libmescc.a ''${LIBDIR}/x86-mes
-    cp ${libmescc}/lib/libmescc.s ''${LIBDIR}/x86-mes
+    cp ${libmescc}/lib/libmescc.a ''${LIBDIR}/${mesArch}-mes
+    cp ${libmescc}/lib/libmescc.s ''${LIBDIR}/${mesArch}-mes
 
     # libc.a
-    cp ${libc}/lib/libc.a ''${LIBDIR}/x86-mes
-    cp ${libc}/lib/libc.s ''${LIBDIR}/x86-mes
+    cp ${libc}/lib/libc.a ''${LIBDIR}/${mesArch}-mes
+    cp ${libc}/lib/libc.s ''${LIBDIR}/${mesArch}-mes
 
     # libc+tcc.a
-    cp ${libc_tcc}/lib/libc+tcc.a ''${LIBDIR}/x86-mes
-    cp ${libc_tcc}/lib/libc+tcc.s ''${LIBDIR}/x86-mes
+    cp ${libc_tcc}/lib/libc+tcc.a ''${LIBDIR}/${mesArch}-mes
+    cp ${libc_tcc}/lib/libc+tcc.s ''${LIBDIR}/${mesArch}-mes
   '';
 
   # Build mes itself
@@ -228,10 +225,10 @@ let
       -lmescc \
       -nostdlib \
       -o ''${out}/bin/mes \
-      ${libs}/lib/x86-mes/crt1.o \
+      ${libs}/lib/${mesArch}-mes/crt1.o \
       ${lib.concatMapStringsSep " " (getRes ".o") (map compile mes_SOURCES)}
   '';
 in {
-  inherit srcPost srcPrefix nyacc;
+  inherit src srcPost srcPrefix nyacc;
   inherit compiler libs;
 }

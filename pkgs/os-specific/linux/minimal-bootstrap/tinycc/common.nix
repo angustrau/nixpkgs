@@ -1,9 +1,15 @@
 { lib
+, hostPlatform
 , kaem
 , mes-libc
 }:
 
 rec {
+
+  targetFlag = {
+    "i686-linux"    = "TCC_TARGET_I386=1";
+    "x86_64-linux"  = "TCC_TARGET_X86_64=1";
+  }.${hostPlatform.system} or (throw "Unsupported system: ${hostPlatform.system}");
 
   # Recompile libc: crt{1,n,i}, libtcc.a, libc.a, libgetopt.a
   recompileLibc =
@@ -22,9 +28,9 @@ rec {
       ${tcc}/bin/tcc ${mes-libc.CFLAGS} -c -o ''${out}/lib/crti.o ${mes-libc}/lib/crti.c
     '';
 
-    library = lib: options: source: kaem.runCommand "${lib}.a" {} ''
-      ${tcc}/bin/tcc ${options} -c -o ${lib}.o ${source}
-      ${tcc}/bin/tcc -ar cr ''${out} ${lib}.o
+    library = lib: options: source: kaem.runCommand "${lib}.a" { MES_DEBUG=6; } ''
+      ${tcc}/bin/tcc ${options} -c -o ./${lib}.o ${source}
+      ${tcc}/bin/tcc -ar cr ''${out} ./${lib}.o
     '';
 
     libtcc1 = library "libtcc1" libtccOptions "${src}/lib/libtcc1.c";
@@ -53,7 +59,7 @@ rec {
     let
       options = lib.strings.concatStringsSep " " buildOptions;
       libtccOptions = lib.strings.concatStringsSep " "
-        (["-c" "-D" "TCC_TARGET_I386=1" ] ++ libtccBuildOptions);
+        (["-c" "-D" targetFlag ] ++ libtccBuildOptions);
       compiler =  kaem.runCommand "${pname}-${version}" {
         inherit pname version meta;
         passthru.tests = rec {
@@ -79,7 +85,7 @@ rec {
           ${options} \
           -I . \
           -I ${src} \
-          -D TCC_TARGET_I386=1 \
+          -D ${targetFlag} \
           -D CONFIG_TCCDIR=\"\" \
           -D CONFIG_SYSROOT=\"\" \
           -D CONFIG_TCC_CRTPREFIX=\"{B}\" \

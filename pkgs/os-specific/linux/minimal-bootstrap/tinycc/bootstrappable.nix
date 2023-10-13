@@ -15,14 +15,22 @@
 , mes-libc
 }:
 let
-  inherit (callPackage ./common.nix { }) buildTinyccMes recompileLibc;
+  inherit (callPackage ./common.nix { }) buildTinyccMes recompileLibc targetFlag;
 
-  version = "unstable-2023-04-20";
-  rev = "80114c4da6b17fbaabb399cc29f427e368309bc8";
+  # version = "unstable-2023-04-20";
+  # rev = "80114c4da6b17fbaabb399cc29f427e368309bc8";
+
+  # tarball = fetchurl {
+  #   url = "https://gitlab.com/janneke/tinycc/-/archive/${rev}/tinycc-${rev}.tar.gz";
+  #   sha256 = "1a0cw9a62qc76qqn5sjmp3xrbbvsz2dxrw21lrnx9q0s74mwaxbq";
+  # };
+
+  version = "unstable-2023-07-24";
+  rev = "772bfa5329e92422600492c523ee7ca23fc86cd7";
 
   tarball = fetchurl {
     url = "https://gitlab.com/janneke/tinycc/-/archive/${rev}/tinycc-${rev}.tar.gz";
-    sha256 = "1a0cw9a62qc76qqn5sjmp3xrbbvsz2dxrw21lrnx9q0s74mwaxbq";
+    hash = "sha256-24AlqaFzA/01koIMqcB8JQbXZueJ/oxB5c8vzg9pab4=";
   };
   src = (kaem.runCommand "tinycc-bootstrappable-${version}-source" {} ''
     ungz --file ${tarball} --output tinycc.tar
@@ -32,6 +40,7 @@ let
 
     # Patch
     cd tinycc-${rev}
+    # replace --file tccgen.c --output tccgen.c --match-on "		    c = expr_const64();" --replace-with "		    c = expr_const();"
     # Static link by default
     replace --file libtcc.c --output libtcc.c --match-on "s->ms_extensions = 1;" --replace-with "s->ms_extensions = 1; s->static_link = 1;"
   '') + "/tinycc-${rev}";
@@ -41,7 +50,7 @@ let
     homepage = "https://gitlab.com/janneke/tinycc";
     license = licenses.lgpl21Only;
     maintainers = teams.minimal-bootstrap.members;
-    platforms = [ "i686-linux" ];
+    platforms = [ "i686-linux" "x86_64-linux" ];
   };
 
   pname = "tinycc-boot-mes";
@@ -60,7 +69,7 @@ let
         -I . \
         -D BOOTSTRAP=1 \
         -I ${src} \
-        -D TCC_TARGET_I386=1 \
+        -D ${targetFlag} \
         -D inline= \
         -D CONFIG_TCCDIR=\"\" \
         -D CONFIG_SYSROOT=\"\" \
@@ -68,7 +77,7 @@ let
         -D CONFIG_TCC_ELFINTERP=\"/mes/loader\" \
         -D CONFIG_TCC_LIBPATHS=\"{B}\" \
         -D CONFIG_TCC_SYSINCLUDEPATHS=\"${mes-libc}/include\" \
-        -D TCC_LIBGCC=\"${mes-libc}/lib/x86-mes/libc.a\" \
+        -D TCC_LIBGCC=\"${mes.libs.prefix}/libc.a\" \
         -D CONFIG_TCC_LIBTCC1_MES=0 \
         -D CONFIG_TCCBOOT=1 \
         -D CONFIG_TCC_STATIC=1 \
@@ -76,6 +85,10 @@ let
         -D TCC_MES_LIBC=1 \
         -D TCC_VERSION=\"${version}\" \
         -D ONE_SOURCE=1 \
+        -D HAVE_FLOAT=0 \
+        -D HAVE_LONG_LONG=1 \
+        -D HAVE_LONG_LONG_STUB=0 \
+        -D HAVE_SETJMP=0 \
         ${src}/tcc.c
       mkdir -p ''${out}/bin
       ${mes.compiler}/bin/mes --no-auto-compile -e main ${mes.srcPost.bin}/bin/mescc.scm -- \

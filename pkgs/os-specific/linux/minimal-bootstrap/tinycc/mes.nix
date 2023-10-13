@@ -37,7 +37,7 @@ let
     homepage = "https://repo.or.cz/w/tinycc.git";
     license = licenses.lgpl21Only;
     maintainers = teams.minimal-bootstrap.members;
-    platforms = [ "i686-linux" ];
+    platforms = [ "i686-linux" "x86_64-linux" ];
   };
 
   tccdefs = kaem.runCommand "tccdefs-${version}" {} ''

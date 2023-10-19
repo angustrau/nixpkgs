@@ -1,9 +1,12 @@
-{ version, sha256 }:
-{ lib, stdenv, fetchurl, cmake, ninja, llvm_16, curl, tzdata
+{ lib, stdenv, fetchurl, fetchpatch, cmake, ninja, llvm, curl, tzdata
 , libconfig, lit, gdb, unzip, darwin, bash
 , callPackage, makeWrapper, runCommand, targetPackages
-, ldcBootstrap ? callPackage ./bootstrap.nix { }
+, bootstrapping ? false
+, ldcBootstrap ? null
+, version, sha256
 }:
+
+assert !bootstrapping -> ldcBootstrap != null;
 
 let
   pathConfig = runCommand "ldc-lib-paths" {} ''
@@ -23,13 +26,22 @@ stdenv.mkDerivation rec {
     inherit sha256;
   };
 
+  patches = lib.optionals bootstrapping [
+    # Backported from ltsmaster
+    # https://github.com/ldc-developers/ldc/issues/2982
+    (fetchpatch {
+      url = "https://github.com/ldc-developers/ldc/commit/d442f9f67f49362c1ba28c874d2569cf68236498.patch";
+      hash = "sha256-xOOKocf/TeK+EazCC121eZTbmB2K+8C1iRvzKKusmTE=";
+    })
+  ];
+
   # https://issues.dlang.org/show_bug.cgi?id=19553
   hardeningDisable = [ "fortify" ];
 
   postUnpack = ''
     patchShebangs .
   ''
-  + ''
+  + lib.optionalString (!bootstrapping && false) ''
       rm ldc-${version}-src/tests/dmd/fail_compilation/mixin_gc.d
       rm ldc-${version}-src/tests/dmd/runnable/xtest46_gc.d
       rm ldc-${version}-src/tests/dmd/runnable/testptrref_gc.d
@@ -37,12 +49,12 @@ stdenv.mkDerivation rec {
       # test depends on current year
       rm ldc-${version}-src/tests/dmd/compilable/ddocYear.d
   ''
-  + lib.optionalString stdenv.hostPlatform.isDarwin ''
+  + lib.optionalString (stdenv.hostPlatform.isDarwin && !bootstrapping) ''
       # https://github.com/NixOS/nixpkgs/issues/34817
       rm -r ldc-${version}-src/tests/plugins/addFuncEntryCall
   '';
 
-  postPatch = ''
+  postPatch = lib.optionalString (!bootstrapping && false) ''
     # Setting SHELL=$SHELL when dmd testsuite is run doesn't work on Linux somehow
     substituteInPlace tests/dmd/Makefile --replace "SHELL=/bin/bash" "SHELL=${bash}/bin/bash"
   ''
@@ -54,8 +66,9 @@ stdenv.mkDerivation rec {
   '';
 
   nativeBuildInputs = [
-    cmake ldcBootstrap lit lit.python llvm_16.dev makeWrapper ninja unzip
+    cmake lit lit.python llvm.dev makeWrapper ninja unzip
   ]
+  ++ lib.optionals (!bootstrapping) [ ldcBootstrap ]
   ++ lib.optionals stdenv.hostPlatform.isDarwin [
     darwin.apple_sdk.frameworks.Foundation
   ]
@@ -64,10 +77,13 @@ stdenv.mkDerivation rec {
     gdb
   ];
 
-  buildInputs = [ curl tzdata ];
+  buildInputs = [ curl tzdata ] ++ lib.optionals bootstrapping [ libconfig ];
 
   cmakeFlags = [
     "-DD_FLAGS=-d-version=TZDatabaseDir;-d-version=LibcurlPath;-J${pathConfig}"
+  ] ++ lib.optionals (!bootstrapping) [
+    "-DLDC_ENABLE_PLUGINS=OFF"
+    "-DBUILD_SHARED_LIBS=OFF"
   ];
 
   postConfigure = ''
@@ -125,12 +141,16 @@ stdenv.mkDerivation rec {
         --set-default CC "${targetPackages.stdenv.cc}/bin/cc"
    '';
 
+  passthru.__bootstrap = ldcBootstrap;
+
   meta = with lib; {
     description = "The LLVM-based D compiler";
     homepage = "https://github.com/ldc-developers/ldc";
     # from https://github.com/ldc-developers/ldc/blob/master/LICENSE
     license = with licenses; [ bsd3 boost mit ncsa gpl2Plus ];
     maintainers = with maintainers; [ ThomasMader lionello jtbx ];
-    platforms = [ "x86_64-linux" "i686-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
+    platforms = [ "x86_64-linux" "i686-linux" "aarch64-linux" "x86_64-darwin" ]
+      # bootstrap compiler doesn't support aarch64-darwin
+      ++ lib.optionals (!bootstrapping) [ "aarch64-darwin" ];
   };
 }

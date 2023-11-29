@@ -1,4 +1,4 @@
-{ stdenv, lib, fetchFromGitHub }:
+{ stdenv, lib, fetchFromGitHub, cmake }:
 
 stdenv.mkDerivation rec {
   pname = "backward";
@@ -11,20 +11,13 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-2k5PjwFxgA/2XPqJrPHxgSInM61FBEcieppBx+MAUKw=";
   };
 
-  installPhase = ''
-    runHook preInstall
-
-    mkdir -p $out/include
-    cp backward.hpp $out/include
-
-    runHook postInstall
-  '';
+  nativeBuildInputs = [ cmake ];
 
   meta = with lib; {
     description = "Beautiful stack trace pretty printer for C++";
     homepage = "https://github.com/bombela/backward-cpp";
     license = licenses.mit;
     platforms = platforms.all;
-    maintainers = with maintainers; [ ];
+    maintainers = with maintainers; [ emilytrau ];
   };
 }

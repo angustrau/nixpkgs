@@ -9834,6 +9834,8 @@ with pkgs;
 
   klick = callPackage ../applications/audio/klick { };
 
+  klogg = libsForQt5.callPackage ../by-name/kl/klogg/package.nix { };
+
   klystrack = callPackage ../applications/audio/klystrack { };
 
   knit = callPackage ../development/tools/build-managers/knit { };
@@ -26349,6 +26351,10 @@ with pkgs;
   dovecot_fts_xapian = callPackage ../servers/mail/dovecot/plugins/fts_xapian { };
 
   dspam = callPackage ../servers/mail/dspam { };
+
+  efsw = callPackage ../by-name/ef/efsw/package.nix {
+    inherit (darwin.apple_sdk.frameworks) CoreServices;
+  };
 
   engelsystem = callPackage ../servers/web-apps/engelsystem { php = php81; };
 

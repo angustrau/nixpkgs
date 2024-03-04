@@ -1,0 +1,27 @@
+diff --git a/src/buffer.c b/src/buffer.c
+index f197c96..88c8dee 100644
+--- a/src/buffer.c
++++ b/src/buffer.c
+@@ -11,6 +11,9 @@ void buffer_loadrc(struct buffer* buffer) {
+   snprintf(buf, sizeof(buf), "%s/%s", home, ".config/svim/svimrc");
+ 
+   char_u* file = (char_u*) read_file(buf);
++
++  if (!file) file = (char_u*) read_file("%PREFIX%/share/svim/svimrc");
++
+   if (file) {
+     vimExecute(file);
+     free(file);
+diff --git a/src/event_tap.c b/src/event_tap.c
+index dba6667..21da79e 100644
+--- a/src/event_tap.c
++++ b/src/event_tap.c
+@@ -51,6 +51,8 @@ void event_tap_load_blacklist(struct event_tap* event_tap) {
+ 
+   FILE *file = fopen(buf, "r");
+ 
++  if (!file) file = fopen("%PREFIX%/share/svim/blacklist", "r");
++
+   if (!file) return;
+ 
+   char line[255];

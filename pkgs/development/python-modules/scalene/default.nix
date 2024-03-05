@@ -38,6 +38,7 @@ buildPythonPackage rec {
   pname = "scalene";
   version = "1.5.36";
   # format = "setuptools";
+  pyproject = true;
 
   src = fetchFromGitHub {
     owner = "plasma-umass";
@@ -62,12 +63,13 @@ buildPythonPackage rec {
 
   build-system = [
     setuptools
+    setuptools-scm
     wheel
   ];
 
   nativeBuildInputs = [
     cython
-    setuptools-scm
+
   ];
 
   propagatedBuildInputs = [
@@ -78,8 +80,6 @@ buildPythonPackage rec {
 
     jinja2
     rich
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
-    pynvml
   ];
 
   nativeCheckInputs = [
@@ -88,7 +88,7 @@ buildPythonPackage rec {
     numpy
   ];
   pythonImportsCheck = [ "scalene" "scalene.crdp" ];
-  doCheck = false;
+  # doCheck = false;
 
   meta = {
     description = "Python CPU+GPU+memory profiler with AI-powered optimization proposals";

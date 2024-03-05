@@ -2459,6 +2459,8 @@ self: super: with self; {
 
   crcmod = callPackage ../development/python-modules/crcmod { };
 
+  crdp = callPackage ../development/python-modules/crdp { };
+
   credstash = callPackage ../development/python-modules/credstash { };
 
   criticality-score = callPackage ../development/python-modules/criticality-score { };
@@ -13177,6 +13179,8 @@ self: super: with self; {
   sarge = callPackage ../development/python-modules/sarge { };
 
   sasmodels = callPackage ../development/python-modules/sasmodels { };
+
+  scalene = callPackage ../development/python-modules/scalene { };
 
   scales = callPackage ../development/python-modules/scales { };
 

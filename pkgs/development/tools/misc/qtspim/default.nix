@@ -1,38 +1,70 @@
-{ lib, stdenv, fetchsvn, wrapQtAppsHook, qtbase, qttools, qmake, bison, flex, ... }:
+{ lib
+, stdenv
+, fetchsvn
+, makeBinaryWrapper
+, qt5
+, qt6
+, bison
+, flex
+, coreutils
+}:
+
 stdenv.mkDerivation rec {
   pname = "qtspim";
-  version = "9.1.23";
+  version = "9.1.24";
 
   src = fetchsvn {
     url = "https://svn.code.sf.net/p/spimsimulator/code/";
-    rev = "r749";
-    sha256 = "0iazl7mlcilrdbw8gb98v868a8ldw2lmkn1xs8hnfvr93l6aj0rp";
+    rev = "764";
+    hash = "sha256-7fZGjT72wsZHsyslEDQzRrh0fETZF2UXNzbVKle0kck=";
   };
 
   postPatch = ''
     cd QtSpim
 
-    substituteInPlace QtSpim.pro --replace /usr/lib/qtspim/lib $out/lib
+    substituteInPlace QtSpim.pro --replace-fail /usr/lib/qtspim/lib $out/lib
     substituteInPlace menu.cpp \
-      --replace /usr/lib/qtspim/bin/assistant ${qttools.dev}/bin/assistant \
-      --replace /usr/lib/qtspim/help/qtspim.qhc $out/share/help/qtspim.qhc
+      --replace-fail /usr/lib/qtspim/bin/assistant ${qt5.qttools.dev}/bin/assistant \
+      --replace-fail /Applications/QtSpim.app/Contents/MacOS/Assistant ${qt5.qttools.dev}/bin/Assistant.app/Contents/MacOS/Assistant \
+      --replace-fail /usr/lib/qtspim/help/qtspim.qhc $out/share/help/qtspim.qhc \
+      --replace-fail /Applications/QtSpim.app/Contents/Resources/doc/qtspim.qhc $out/Applications/QtSpim.app/Contents/Resources/doc/qtspim.qhc
     substituteInPlace ../Setup/qtspim_debian_deployment/qtspim.desktop \
-      --replace /usr/bin/qtspim qtspim \
-      --replace /usr/lib/qtspim/qtspim.png qtspim
+      --replace-fail /usr/bin/qtspim qtspim \
+      --replace-fail /usr/lib/qtspim/qtspim.png qtspim
+
+    # Qt5's qhelpgenerator segfaults on darwin?
+    ${qt6.qttools}/libexec/qhelpgenerator help/qtspim.qhp -o help/qtspim.qch
   '';
 
-  nativeBuildInputs = [ wrapQtAppsHook qttools qmake bison flex ];
-  buildInputs = [ qtbase ];
-  QT_PLUGIN_PATH = "${qtbase}/${qtbase.qtPluginPrefix}";
+  nativeBuildInputs = [
+    makeBinaryWrapper
+    qt5.wrapQtAppsHook
+    qt5.qmake
+    bison
+    flex
+    coreutils
+  ];
+  buildInputs = [ qt5.qtbase ];
+  env.QT_PLUGIN_PATH = "${qt5.qtbase}/${qt5.qtbase.qtPluginPrefix}";
 
   qmakeFlags = [
-    "QtSpim.pro"
-    "-spec"
-    "linux-g++"
-    "CONFIG+=release"
+    # This seems really stupid, but the only place that MOVE is invoked is to move parser_yacc.h on
+    # to itself, which fails with gnuutils, since they raises an error if you try to mv (or cp) a
+    # file onto itself. Pretty pointless, and no way to turn it off...
+    "QMAKE_MOVE=touch"
   ];
 
-  installPhase = ''
+  installPhase = if stdenv.isDarwin then ''
+    runHook preInstall
+
+    mkdir -p $out/Applications $out/bin
+    cp NewIcon.icns QtSpim.app/Contents/Resources/NewIcon.icns
+    cp -r help QtSpim.app/Contents/Resources/doc
+    cp -r QtSpim.app $out/Applications/QtSpim.app
+    makeWrapper $out/Applications/QtSpim.app/Contents/MacOS/QtSpim $out/bin/qtspim
+
+    runHook postInstall
+  '' else ''
     runHook preInstall
 
     install -D QtSpim $out/bin/qtspim
@@ -49,8 +81,8 @@ stdenv.mkDerivation rec {
     description = "New user interface for spim, a MIPS simulator";
     mainProgram = "qtspim";
     homepage = "https://spimsimulator.sourceforge.net/";
-    license = licenses.bsdOriginal;
+    license = licenses.bsd3;
     maintainers = with maintainers; [ emilytrau ];
-    platforms = platforms.linux;
+    platforms = platforms.unix;
   };
 }

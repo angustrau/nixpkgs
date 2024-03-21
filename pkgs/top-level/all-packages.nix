@@ -12435,7 +12435,7 @@ with pkgs;
 
   qtikz = libsForQt5.callPackage ../applications/graphics/ktikz { };
 
-  qtspim = libsForQt5.callPackage ../development/tools/misc/qtspim { };
+  qtspim = callPackage ../development/tools/misc/qtspim { };
 
   quadrafuzz = callPackage ../applications/audio/quadrafuzz { };
 

@@ -26,6 +26,6 @@ stdenv.mkDerivation (finalAttrs: {
     license = lib.licenses.lgpl2Plus;
     mainProgram = "Gorm";
     maintainers = with lib.maintainers; [ ashalkhakov matthewbauer dblsaiko ];
-    platforms = lib.platforms.linux;
+    platforms = lib.platforms.unix;
   };
 })

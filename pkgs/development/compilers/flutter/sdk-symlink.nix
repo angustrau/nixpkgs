@@ -11,7 +11,8 @@ let
       nativeBuildInputs = [ makeWrapper ];
       postBuild = ''
         wrapProgram "$out/bin/flutter" \
-          --set-default FLUTTER_ROOT "$out"
+          --set-default FLUTTER_ROOT "$out" \
+          --set HOME "$(mktemp -d)"
 
         # symlinkJoin seems to be missing the .git directory for some reason.
         if [ -d '${flutter.sdk}/.git' ]; then

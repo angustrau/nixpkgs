@@ -31,6 +31,6 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "https://gnustep.github.io/";
     license = lib.licenses.lgpl2Plus;
     maintainers = with lib.maintainers; [ ashalkhakov matthewbauer dblsaiko ];
-    platforms = lib.platforms.linux;
+    platforms = lib.platforms.unix;
   };
 })

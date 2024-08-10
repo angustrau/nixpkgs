@@ -1,0 +1,39 @@
+diff --git a/Libraries/pbxbuild/Sources/Tool/MakeDirectoryResolver.cpp b/Libraries/pbxbuild/Sources/Tool/MakeDirectoryResolver.cpp
+index c39b4c3a..5f861080 100644
+--- a/Libraries/pbxbuild/Sources/Tool/MakeDirectoryResolver.cpp
++++ b/Libraries/pbxbuild/Sources/Tool/MakeDirectoryResolver.cpp
+@@ -28,7 +28,7 @@ resolve(
+     std::string logMessage = "MkDir " + directory;
+ 
+     Tool::Invocation invocation;
+-    invocation.executable() = Tool::Invocation::Executable::External("/bin/mkdir");
++    invocation.executable() = Tool::Invocation::Executable::External("mkdir");
+     invocation.arguments() = { "-p", directory };
+     invocation.workingDirectory() = toolContext->workingDirectory();
+     invocation.outputs() = { FSUtil::ResolveRelativePath(directory, toolContext->workingDirectory()) };
+diff --git a/Libraries/pbxbuild/Sources/Tool/SymlinkResolver.cpp b/Libraries/pbxbuild/Sources/Tool/SymlinkResolver.cpp
+index f1d0a19d..1d94010b 100644
+--- a/Libraries/pbxbuild/Sources/Tool/SymlinkResolver.cpp
++++ b/Libraries/pbxbuild/Sources/Tool/SymlinkResolver.cpp
+@@ -30,7 +30,7 @@ resolve(
+     std::string logMessage = "SymLink " + targetPath + " " + symlinkPath;
+ 
+     Tool::Invocation invocation;
+-    invocation.executable() = Tool::Invocation::Executable::External("/bin/ln");
++    invocation.executable() = Tool::Invocation::Executable::External("ln");
+     invocation.arguments() = { "-sfh", targetPath, symlinkPath };
+     invocation.workingDirectory() = workingDirectory;
+     invocation.phonyInputs() = { FSUtil::ResolveRelativePath(targetPath, workingDirectory) };
+diff --git a/Libraries/pbxbuild/Sources/Tool/TouchResolver.cpp b/Libraries/pbxbuild/Sources/Tool/TouchResolver.cpp
+index 7268679d..ded9b5a8 100644
+--- a/Libraries/pbxbuild/Sources/Tool/TouchResolver.cpp
++++ b/Libraries/pbxbuild/Sources/Tool/TouchResolver.cpp
+@@ -41,7 +41,7 @@ resolve(
+     }
+ 
+     Tool::Invocation invocation;
+-    invocation.executable() = Tool::Invocation::Executable::External("/usr/bin/touch");
++    invocation.executable() = Tool::Invocation::Executable::External("touch");
+     invocation.arguments() = { "-c", input };
+     invocation.workingDirectory() = toolContext->workingDirectory();
+     invocation.outputs() = { output };

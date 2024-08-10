@@ -24,6 +24,7 @@
 , pkg-config
 , portaudio
 , libiberty
+, darwin
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -42,11 +43,24 @@ stdenv.mkDerivation (finalAttrs: {
     libffi binutils-unwrapped
     libjpeg libtiff libpng giflib
     libxml2 libxslt libiconv
-    libobjc libgcrypt
+    libgcrypt
     icu
     portaudio
     libiberty
   ];
+
+  env.NIX_CFLAGS_COMPILE = lib.optionalString stdenv.cc.isClang (toString [
+    "-Wno-error=int-conversion"
+  ]);
+
+  buildInputs = [
+    darwin.apple_sdk.frameworks.AppKit
+    darwin.apple_sdk.frameworks.CoreFoundation
+    darwin.apple_sdk.frameworks.Foundation
+    darwin.apple_sdk.frameworks.CoreGraphics
+  ];
+  enableParallelBuilding = true;
+
   patches = [
     ./fixup-paths.patch
     # https://github.com/gnustep/libs-base/issues/212 / https://www.sogo.nu/bugs/view.php?id=5416#c15585
@@ -74,6 +88,6 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "https://gnustep.github.io/";
     license = lib.licenses.lgpl2Plus;
     maintainers = with lib.maintainers; [ ashalkhakov matthewbauer dblsaiko ];
-    platforms = lib.platforms.linux;
+    platforms = lib.platforms.unix;
   };
 })

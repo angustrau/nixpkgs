@@ -1,6 +1,9 @@
 { lib
 , flutter
 , fetchFromGitHub
+, cocoapods
+, xcbuild
+, git
 }:
 
 flutter.buildFlutterApplication rec {
@@ -16,11 +19,22 @@ flutter.buildFlutterApplication rec {
 
   sourceRoot = "${src.name}/chameleonultragui";
 
+  preBuild = ''
+    git config --global --add safe.directory '*'
+    pod repo remove master
+  '';
+
   pubspecLock = lib.importJSON ./pubspec.lock.json;
 
   gitHashes = {
     usb_serial = "sha256-cW5pAS8rVJYPtsGobYEV/ywvjU7D/FjZM0uM8VH7Cug=";
   };
+
+  nativeBuildInputs = [
+    cocoapods
+    xcbuild
+    git
+  ];
 
   meta = {
     description = "GUI for the Chameleon Ultra";

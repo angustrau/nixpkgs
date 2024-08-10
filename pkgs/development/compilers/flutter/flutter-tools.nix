@@ -9,6 +9,7 @@
 , flutterSrc
 , patches ? [ ]
 , pubspecLock
+, xcbuild
 }:
 
 buildDartApplication.override { inherit dart; } rec {
@@ -30,6 +31,14 @@ buildDartApplication.override { inherit dart; } rec {
   + lib.optionalString stdenv.isDarwin ''
     substituteInPlace lib/src/ios/xcodeproj.dart \
       --replace-fail arm64e arm64
+    substituteInPlace lib/src/ios/plist_parser.dart \
+      --replace-fail '/usr/bin/plutil' '${xcbuild}/bin/plutil'
+    substituteInPlace lib/src/ios/xcodeproj.dart \
+      --replace-fail '_operatingSystemUtils.hostPlatform == HostPlatform.darwin_arm64' 'false'
+    substituteInPlace lib/src/macos/build_macos.dart \
+      --replace-fail "'/usr/bin/env'," ""
+    substituteInPlace lib/src/macos/xcode.dart \
+      --replace-fail '[...xcrunCommand(), command, ...args]' '[command, ...args]'
   '';
 
   # When the JIT snapshot is being built, the application needs to run.

@@ -6,6 +6,7 @@
 , buildDartApplication
 , darwin
 , cocoapods
+, xcbuild
 , cacert
 , glib
 , flutter
@@ -50,7 +51,7 @@ let
             --add-flags "--root-certs-file=${cacert}/etc/ssl/certs/ca-bundle.crt"
         ''}/bin/dart"
 
-        export HOME="$NIX_BUILD_TOP"
+        export HOME="$(mktemp -d)"
         flutter config --no-analytics &>/dev/null # mute first-run
         flutter config --enable-${targetFlutterPlatform}-desktop >/dev/null
       '';
@@ -168,6 +169,7 @@ let
 
         mkdir -p build/flutter_assets/fonts
 
+        export HOME="$(mktemp -d)"
         flutter build macos -v --release --split-debug-info="$debug" ${builtins.concatStringsSep " " (map (flag: "\"${flag}\"") flutterBuildFlags)}
 
         runHook postBuild

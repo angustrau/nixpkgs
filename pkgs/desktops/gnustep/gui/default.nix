@@ -4,6 +4,7 @@
 , wrapGNUstepAppsHook
 , fetchzip
 , base
+, darwin
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -16,17 +17,30 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   nativeBuildInputs = [ make wrapGNUstepAppsHook ];
-  buildInputs = [ base ];
+  buildInputs = [
+    base
+    darwin.apple_sdk.frameworks.CoreFoundation
+    darwin.apple_sdk.frameworks.AppKit
+    darwin.apple_sdk.frameworks.Foundation
+    darwin.apple_sdk.frameworks.CoreGraphics
+  ];
 
   patches = [
     ./fixup-all.patch
   ];
+
+  env.NIX_CFLAGS_COMPILE = lib.optionalString stdenv.cc.isClang (toString [
+    "-Wno-error=implicit-function-declaration"
+    "-Wno-error=int-conversion"
+    "-Wno-error=implicit-int"
+  ]);
+
   meta = {
     changelog = "https://github.com/gnustep/libs-gui/releases/tag/gui-${builtins.replaceStrings [ "." ] [ "_" ] finalAttrs.version}";
     description = "A GUI class library of GNUstep";
     homepage = "https://gnustep.github.io/";
     license = lib.licenses.lgpl2Plus;
     maintainers = with lib.maintainers; [ ashalkhakov matthewbauer dblsaiko ];
-    platforms = lib.platforms.linux;
+    platforms = lib.platforms.unix;
   };
 })

@@ -3,6 +3,7 @@
 , fetchurl
 , which
 , libobjc
+, darwin
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -27,7 +28,14 @@ stdenv.mkDerivation (finalAttrs: {
     "GNUSTEP_INSTALLATION_DOMAIN=SYSTEM"
   ];
 
-  buildInputs = [ libobjc ];
+  # buildInputs = [ libobjc ];
+
+  buildInputs = [
+    darwin.apple_sdk.frameworks.AppKit
+    darwin.apple_sdk.frameworks.CoreFoundation
+    darwin.apple_sdk.frameworks.Foundation
+    darwin.apple_sdk.frameworks.CoreGraphics
+  ];
 
   propagatedBuildInputs = [ which ];
 
